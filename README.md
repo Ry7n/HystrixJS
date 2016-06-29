@@ -22,7 +22,7 @@ Since this library targets nodejs application, it is by far not as complex as th
 - measures execution times
 - trips a circuit-breaker to stop all requests to a particular service for a period of time, if the error percentage for this service passes a configured threshold
 - performs fallback logic, when the execution fails, times out or is short-circuits
-- provides a SSE of metrics, which can be visualised in [Hystrix Dashbord](https://github.com/Netflix/Hystrix/tree/master/hystrix-dashboard) for near real-time monitoring
+- provides a SSE of metrics, which can be visualised in [Hystrix Dashboard](https://github.com/Netflix/Hystrix/tree/master/hystrix-dashboard) for near real-time monitoring
 
 Following diagram shows what happens when a function call is wrapped in a Command
 
