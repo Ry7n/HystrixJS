@@ -182,11 +182,12 @@ describe("Command", function() {
         var metrics = CommandMetricsFactory.getOrCreate({commandKey: "VolumeThresholdCommand"});
         metrics.incrementExecutionCount();
         metrics.incrementExecutionCount();
-        command.execute("success").then(failTest(done)).fail(function(error) {
-            expect(error.message).toBe("CommandRejected");
-            expect(metrics.getRollingCount(RollingNumberEvent.REJECTED)).toBe(1);
-            done();
-        });
+        command.execute("success")
+            .then(failTest(done), function(error) {
+                    expect(error.message).toBe("CommandRejected");
+                    expect(metrics.getRollingCount(RollingNumberEvent.REJECTED)).toBe(1);
+                    done();
+                });
     });
 
     it("should execute fallback, if the request volume threshold is reached", function(done) {
@@ -215,6 +216,6 @@ describe("Command", function() {
             expect(metrics.getRollingCount(RollingNumberEvent.REJECTED)).toBe(1);
             expect(object.run).not.toHaveBeenCalled();
             done();
-        }).fail(failTest(done));
+        }, failTest(done));
     })
 });

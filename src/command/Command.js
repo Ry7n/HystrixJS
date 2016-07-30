@@ -1,8 +1,11 @@
 import {Factory as CommandMetricsFactory} from "../metrics/CommandMetrics";
 import CircuitBreakerFactory from "./CircuitBreaker";
-import q from "q";
 import ActualTime from "../util/ActualTime"
 import HystrixConfig from "../util/HystrixConfig";
+
+function reject(error) {
+    return new global.Promise((resolve, reject) => reject(error));
+}
 
 export default class Command {
     constructor({
@@ -13,7 +16,7 @@ export default class Command {
             circuitConfig,
             requestVolumeRejectionThreshold = HystrixConfig.requestVolumeRejectionThreshold,
             timeout = HystrixConfig.executionTimeoutInMilliseconds,
-            fallback = function(error) {return q.reject(error);},
+            fallback = reject,
             run = function() {throw new Error("Command must implement run method.")},
             isErrorHandler = function(error) {return error;}
         }) {
@@ -58,26 +61,27 @@ export default class Command {
         }
 
         return promise
-        .then((...args) => {
-                return this.handleSuccess(start, args);
+        .then(
+            (res) => {
+                this.handleSuccess(start);
+                return res
             }
         )
-        .fail(err => {
-                return this.handleFailure(err);
-            }
-        )
-        .finally(() => {
-                this.metrics.decrementExecutionCount()
-            }
-        );
+        .then(null, err => this.handleFailure(err))
+        .then(res => {
+            this.metrics.decrementExecutionCount();
+            return res;
+        }, err => {
+            this.metrics.decrementExecutionCount();
+            throw err;
+        });
     }
 
-    handleSuccess(start, args) {
+    handleSuccess(start) {
         let end = ActualTime.getCurrentTime();
         this.metrics.addExecutionTime(end - start);
         this.metrics.markSuccess();
         this.circuitBreaker.markSuccess();
-        return q.resolve.apply(null, args);
     }
 
     handleFailure(err) {
