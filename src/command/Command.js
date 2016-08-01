@@ -2,9 +2,30 @@ import {Factory as CommandMetricsFactory} from "../metrics/CommandMetrics";
 import CircuitBreakerFactory from "./CircuitBreaker";
 import ActualTime from "../util/ActualTime"
 import HystrixConfig from "../util/HystrixConfig";
+import Promise from 'any-promise';
 
-function reject(error) {
-    return new global.Promise((resolve, reject) => reject(error));
+function doFinally(promise, fn) {
+    return promise.then(
+        res => {
+            fn();
+            return res;
+        },
+        err => {
+            fn();
+            throw err;
+        }
+    );
+}
+
+function timeout(promise, timeMs) {
+
+    return new Promise((resolve, reject) => {
+        let timer = setTimeout(() => reject(new Error('CommandTimeOut')), timeMs);
+
+        return doFinally(promise.then(resolve, reject),
+            () => clearTimeout(timer));
+    });
+
 }
 
 export default class Command {
@@ -16,7 +37,7 @@ export default class Command {
             circuitConfig,
             requestVolumeRejectionThreshold = HystrixConfig.requestVolumeRejectionThreshold,
             timeout = HystrixConfig.executionTimeoutInMilliseconds,
-            fallback = reject,
+            fallback = err => Promise.reject(err),
             run = function() {throw new Error("Command must implement run method.")},
             isErrorHandler = function(error) {return error;}
         }) {
@@ -41,15 +62,19 @@ export default class Command {
     }
 
     execute() {
-        if (this.requestVolumeRejectionThreshold != 0 && this.metrics.getCurrentExecutionCount() >= this.requestVolumeRejectionThreshold) {
-            return this.handleFailure(new Error("CommandRejected"));
-        }
-        if (this.circuitBreaker.allowRequest()) {
-            return this.runCommand.apply(this, arguments);
-        } else {
-            this.metrics.markShortCircuited();
-            return this.fallback(new Error("OpenCircuitError"));
-        }
+        //Resolve promise to guarantee execution/fallback is always deferred
+        return Promise.resolve()
+            .then(() => {
+                if (this.requestVolumeRejectionThreshold != 0 && this.metrics.getCurrentExecutionCount() >= this.requestVolumeRejectionThreshold) {
+                    return this.handleFailure(new Error("CommandRejected"));
+                }
+                if (this.circuitBreaker.allowRequest()) {
+                    return this.runCommand.apply(this, arguments);
+                } else {
+                    this.metrics.markShortCircuited();
+                    return this.fallback(new Error("OpenCircuitError"));
+                }
+            });
     }
 
     runCommand() {
@@ -57,24 +82,17 @@ export default class Command {
         let start = ActualTime.getCurrentTime();
         let promise = this.run.apply(this.runContext, arguments);
         if (this.timeout > 0) {
-            promise = promise.timeout(this.timeout, "CommandTimeOut");
+            promise = timeout(promise, this.timeout);
         }
+        promise = promise.then(
+                (res) => {
+                    this.handleSuccess(start);
+                    return res
+                }
+            )
+            .catch(err => this.handleFailure(err));
 
-        return promise
-        .then(
-            (res) => {
-                this.handleSuccess(start);
-                return res
-            }
-        )
-        .then(null, err => this.handleFailure(err))
-        .then(res => {
-            this.metrics.decrementExecutionCount();
-            return res;
-        }, err => {
-            this.metrics.decrementExecutionCount();
-            throw err;
-        });
+        return doFinally(promise, () => this.metrics.decrementExecutionCount());
     }
 
     handleSuccess(start) {
@@ -94,6 +112,7 @@ export default class Command {
                 this.metrics.markFailure();
             }
         }
+
         return this.fallback(err);
     }
 }
