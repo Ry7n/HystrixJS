@@ -1,3 +1,5 @@
+require('any-promise/register/q');  //register Q while running tests
+
 var CommandFactory = require("../../lib/command/CommandFactory");
 var q = require("q");
 var CommandMetricsFactory = require("../../lib/metrics/CommandMetrics").Factory;
@@ -217,5 +219,23 @@ describe("Command", function() {
             expect(object.run).not.toHaveBeenCalled();
             done();
         }, failTest(done));
-    })
+    });
+
+    it("should resolve with q promise when registered", function(done) {
+        var run = function(arg) {
+            //return custom thenable
+            return {
+                then: function(fn) {fn(arg)}
+            }
+        };
+
+        var command = CommandFactory.getOrCreate("QCommand")
+            .run(run)
+            .build();
+
+        var promise = command.execute("success");
+        expect(promise).toBe(q(promise));
+        promise.then(done, failTest(done));
+    });
+
 });
