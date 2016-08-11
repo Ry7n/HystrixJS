@@ -70,7 +70,7 @@ Each generated command is cached based on its key supplied as the first paramete
 this request call will be marked as failure, which will influence the error percentage.
 If it returns null or false, the call will not be marked as failure. An example could be a 404 error, if the customer is not found.
 - *timeout* for request
-- *circuitBreakerRequestVolumeThreshold* - number of concurrent execution, that needs to be exceeded, before the circuit breaker will bother at all to calculate the health
+- *circuitBreakerRequestVolumeThreshold* - minimum number of requests in a rolling window that needs to be exceeded, before the circuit breaker will bother at all to calculate the health
 - *circuitBreakerForceOpened* - force this circuit breaker to be always opened
 - *circuitBreakerForceClosed* - force this circuit breaker to be always closed
 - *circuitBreakerErrorThresholdPercentage* - error percentage threshold to trip the circuit

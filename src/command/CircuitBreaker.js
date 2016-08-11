@@ -62,7 +62,7 @@ class CircuitBreaker {
         }
 
         let {totalCount = 0, errorCount , errorPercentage} = this.metrics.getHealthCounts();
-        if (this.metrics.getCurrentExecutionCount() < this.circuitBreakerRequestVolumeThreshold) {
+        if (totalCount < this.circuitBreakerRequestVolumeThreshold) {
             return false;
         }
 
