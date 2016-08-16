@@ -179,20 +179,17 @@ function hystrixStreamResponse(request, response) {
 
 ## Promises
 
-HystrixJS can work with any A+ compatible promise, and uses [Any-Promise](https://github.com/kevinbeaty/any-promise) to configure the type of promise returned to your application.  By default all promises returned will be built-in ES6 compatible promises.  To configure another library, make sure the promise library, ```any-promise```, and ```hystrixjs``` are installed.  E.g. for Bluebird:
-
-```bash
-npm install bluebird
-npm install any-promise
-npm install hystrixjs
-```
-
-Then register ```bluebird``` with ```any-promise``` in your application (should not be called by other libraries/modules): 
+HystrixJS can work with any ES6 compatible promise implementation. By default all promises returned will be built-in Node.js promises.  To configure another library, specify the promise implementation when initializing the ```HystrixConfig``` module.  E.g. for Bluebird:
 
 ```javascript
-// top of application index.js or other entry point
-require('any-promise/register/bluebird');
+var Promise = require('bluebird');
+// Or Q
+// var Promise = require('q').Promise;
 
-// -or- Equivalent to above, but allows customization of Promise library
-require('any-promise/register')('bluebird', {Promise: require('bluebird')});
+var hystrixConfig = require('hystrixjs').hystrixConfig;
+hystrixConfig.init({
+    // any other hystrix options...
+    "hystrix.promise.implementation": Promise
+});
+
 ```

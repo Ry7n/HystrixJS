@@ -2,7 +2,6 @@ import {Factory as CommandMetricsFactory} from "../metrics/CommandMetrics";
 import CircuitBreakerFactory from "./CircuitBreaker";
 import ActualTime from "../util/ActualTime"
 import HystrixConfig from "../util/HystrixConfig";
-import Promise from 'any-promise';
 
 function doFinally(promise, fn) {
     return promise.then(
@@ -17,12 +16,12 @@ function doFinally(promise, fn) {
     );
 }
 
-function timeout(promise, timeMs) {
+function timeout(PromiseClass, promisedValue, timeMs) {
 
-    return new Promise((resolve, reject) => {
+    return new PromiseClass((resolve, reject) => {
         let timer = setTimeout(() => reject(new Error('CommandTimeOut')), timeMs);
 
-        return doFinally(promise.then(resolve, reject),
+        return doFinally(promisedValue.then(resolve, reject),
             () => clearTimeout(timer));
     });
 
@@ -51,6 +50,7 @@ export default class Command {
         this.metricsConfig = metricsConfig;
         this.circuitConfig = circuitConfig;
         this.requestVolumeRejectionThreshold = requestVolumeRejectionThreshold;
+        this.Promise = HystrixConfig.promiseImplementation;
     }
 
     get circuitBreaker() {
@@ -63,7 +63,7 @@ export default class Command {
 
     execute() {
         //Resolve promise to guarantee execution/fallback is always deferred
-        return Promise.resolve()
+        return this.Promise.resolve()
             .then(() => {
                 if (this.requestVolumeRejectionThreshold != 0 && this.metrics.getCurrentExecutionCount() >= this.requestVolumeRejectionThreshold) {
                     return this.handleFailure(new Error("CommandRejected"));
@@ -80,11 +80,11 @@ export default class Command {
     runCommand() {
         this.metrics.incrementExecutionCount();
         let start = ActualTime.getCurrentTime();
-        let promise = this.run.apply(this.runContext, arguments);
+        let commandPromise = this.run.apply(this.runContext, arguments);
         if (this.timeout > 0) {
-            promise = timeout(promise, this.timeout);
+            commandPromise = timeout(this.Promise, commandPromise, this.timeout);
         }
-        promise = promise.then(
+        commandPromise = commandPromise.then(
                 (res) => {
                     this.handleSuccess(start);
                     return res
@@ -92,7 +92,7 @@ export default class Command {
             )
             .catch(err => this.handleFailure(err));
 
-        return doFinally(promise, () => this.metrics.decrementExecutionCount());
+        return doFinally(commandPromise, () => this.metrics.decrementExecutionCount());
     }
 
     handleSuccess(start) {

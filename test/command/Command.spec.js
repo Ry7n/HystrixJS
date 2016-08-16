@@ -1,10 +1,9 @@
-require('any-promise/register/q');  //register Q while running tests
-
 var CommandFactory = require("../../lib/command/CommandFactory");
 var q = require("q");
 var CommandMetricsFactory = require("../../lib/metrics/CommandMetrics").Factory;
 var failTest = require("../support").failTest;
 var RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
+var HystrixConfig = require("../../lib/util/HystrixConfig");
 
 describe("Command", function() {
     it("should resolve with expected results", function(done) {
@@ -228,6 +227,8 @@ describe("Command", function() {
                 then: function(fn) {fn(arg)}
             }
         };
+
+        HystrixConfig.init({"hystrix.promise.implementation": q.Promise});
 
         var command = CommandFactory.getOrCreate("QCommand")
             .run(run)

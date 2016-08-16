@@ -28,7 +28,6 @@
     "sinon": "^1.16.1"
   },
   "dependencies": {
-    "any-promise": "^1.3.0",
     "fast-stats": "0.0.3",
     "rx": "^3.0.0"
   },
