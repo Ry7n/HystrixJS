@@ -16,9 +16,9 @@ function doFinally(promise, fn) {
     );
 }
 
-function timeout(PromiseClass, promisedValue, timeMs) {
+function timeout(promisedValue, timeMs) {
 
-    return new PromiseClass((resolve, reject) => {
+    return new HystrixConfig.promiseImplementation((resolve, reject) => {
         let timer = setTimeout(() => reject(new Error('CommandTimeOut')), timeMs);
 
         return doFinally(promisedValue.then(resolve, reject),
@@ -36,7 +36,7 @@ export default class Command {
             circuitConfig,
             requestVolumeRejectionThreshold = HystrixConfig.requestVolumeRejectionThreshold,
             timeout = HystrixConfig.executionTimeoutInMilliseconds,
-            fallback = err => Promise.reject(err),
+            fallback = err => this.Promise.reject(err),
             run = function() {throw new Error("Command must implement run method.")},
             isErrorHandler = function(error) {return error;}
         }) {
@@ -82,7 +82,7 @@ export default class Command {
         let start = ActualTime.getCurrentTime();
         let commandPromise = this.run.apply(this.runContext, arguments);
         if (this.timeout > 0) {
-            commandPromise = timeout(this.Promise, commandPromise, this.timeout);
+            commandPromise = timeout(commandPromise, this.timeout);
         }
         commandPromise = commandPromise.then(
                 (res) => {
