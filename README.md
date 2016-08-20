@@ -176,3 +176,20 @@ function hystrixStreamResponse(request, response) {
     );
 };
 ```
+
+## Promises
+
+HystrixJS can work with any ES6 compatible promise implementation. By default all promises returned will be built-in Node.js promises.  To configure another library, specify the promise implementation when initializing the ```HystrixConfig``` module.  E.g. for Bluebird:
+
+```javascript
+var Promise = require('bluebird');
+// Or Q
+// var Promise = require('q').Promise;
+
+var hystrixConfig = require('hystrixjs').hystrixConfig;
+hystrixConfig.init({
+    // any other hystrix options...
+    "hystrix.promise.implementation": Promise
+});
+
+```

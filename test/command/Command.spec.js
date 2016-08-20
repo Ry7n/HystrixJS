@@ -3,6 +3,7 @@ var q = require("q");
 var CommandMetricsFactory = require("../../lib/metrics/CommandMetrics").Factory;
 var failTest = require("../support").failTest;
 var RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
+var HystrixConfig = require("../../lib/util/HystrixConfig");
 
 describe("Command", function() {
     it("should resolve with expected results", function(done) {
@@ -182,11 +183,12 @@ describe("Command", function() {
         var metrics = CommandMetricsFactory.getOrCreate({commandKey: "VolumeThresholdCommand"});
         metrics.incrementExecutionCount();
         metrics.incrementExecutionCount();
-        command.execute("success").then(failTest(done)).fail(function(error) {
-            expect(error.message).toBe("CommandRejected");
-            expect(metrics.getRollingCount(RollingNumberEvent.REJECTED)).toBe(1);
-            done();
-        });
+        command.execute("success")
+            .then(failTest(done), function(error) {
+                    expect(error.message).toBe("CommandRejected");
+                    expect(metrics.getRollingCount(RollingNumberEvent.REJECTED)).toBe(1);
+                    done();
+                });
     });
 
     it("should execute fallback, if the request volume threshold is reached", function(done) {
@@ -215,6 +217,26 @@ describe("Command", function() {
             expect(metrics.getRollingCount(RollingNumberEvent.REJECTED)).toBe(1);
             expect(object.run).not.toHaveBeenCalled();
             done();
-        }).fail(failTest(done));
-    })
+        }, failTest(done));
+    });
+
+    it("should resolve with q promise when registered", function(done) {
+        var run = function(arg) {
+            //return custom thenable
+            return {
+                then: function(fn) {fn(arg)}
+            }
+        };
+
+        HystrixConfig.init({"hystrix.promise.implementation": q.Promise});
+
+        var command = CommandFactory.getOrCreate("QCommand")
+            .run(run)
+            .build();
+
+        var promise = command.execute("success");
+        expect(promise).toBe(q(promise));
+        promise.then(done, failTest(done));
+    });
+
 });
