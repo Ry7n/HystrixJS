@@ -1,6 +1,6 @@
 {
   "name": "hystrixjs",
-  "version": "0.0.4-beta",
+  "version": "0.1.0-beta",
   "description": "resilience module for NodeJS applications",
   "main": "index.js",
   "scripts": {
