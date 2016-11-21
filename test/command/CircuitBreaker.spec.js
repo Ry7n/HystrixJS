@@ -41,16 +41,14 @@ describe ("CircuitBreaker", function() {
 
     it("should not open circuit if the volume has not reached threshold", function() {
         var options = getCBOptions("Test");
-        options.circuitBreakerRequestVolumeThreshold =2;
+        options.circuitBreakerRequestVolumeThreshold =3;
         var cb = CircuitBreakerFactory.getOrCreate(options);
         var metrics = CommandMetricsFactory.getOrCreate({commandKey: "Test"});
         metrics.markSuccess();
         metrics.markFailure();
         expect(cb.isOpen()).toBeFalsy();
 
-        metrics.incrementExecutionCount();
-        metrics.incrementExecutionCount();
-        metrics.incrementExecutionCount();
+        metrics.markFailure();
 
         expect(cb.isOpen()).toBeTruthy();
     });

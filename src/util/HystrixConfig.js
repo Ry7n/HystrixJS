@@ -25,7 +25,7 @@ let defaults = {
     "hystrix.circuit.errorThresholdPercentage": 50,
     "hystrix.circuit.volumeThreshold": 10,
     "hystrix.circuit.volumeThreshold.forceOverride": false,
-    "hystrix.circuit.volumeThreshold.override": 10,
+    "hystrix.circuit.volumeThreshold.override": 20,
     "hystrix.execution.timeoutInMilliseconds": 30000,
     "hystrix.metrics.statistical.window.timeInMilliseconds": 10000,
     "hystrix.metrics.statistical.window.bucketsNumber": 10,

@@ -96,10 +96,8 @@ describe("Command", function() {
             .build();
 
         var metrics =CommandMetricsFactory.getOrCreate({commandKey: "TestCommandThreshold"});
-        metrics.incrementExecutionCount();
-        metrics.incrementExecutionCount();
-        metrics.incrementExecutionCount();
-        metrics.incrementExecutionCount();
+        metrics.markFailure();
+        metrics.markFailure();
         metrics.markFailure();
         command.execute().then(function(result) {
             expect(result).toBe("fallback");
@@ -128,7 +126,6 @@ describe("Command", function() {
             .build();
 
         var metrics =CommandMetricsFactory.getOrCreate({commandKey: "TestCommandThresholdNotReached"});
-        metrics.incrementExecutionCount();
         metrics.markFailure();
         metrics.markFailure();
         command.execute().then(function(result) {
