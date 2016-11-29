@@ -36,7 +36,7 @@ export default class Command {
             circuitConfig,
             requestVolumeRejectionThreshold = HystrixConfig.requestVolumeRejectionThreshold,
             timeout = HystrixConfig.executionTimeoutInMilliseconds,
-            fallback = err => this.Promise.reject(err),
+            fallback = (err, args) => { return this.Promise.reject(err) },
             run = function() {throw new Error("Command must implement run method.")},
             isErrorHandler = function(error) {return error;}
         }) {
@@ -72,7 +72,7 @@ export default class Command {
                     return this.runCommand.apply(this, arguments);
                 } else {
                     this.metrics.markShortCircuited();
-                    return this.fallback(new Error("OpenCircuitError"));
+                    return this.fallback(new Error("OpenCircuitError"), Array.prototype.slice.call(arguments));
                 }
             });
     }
@@ -90,7 +90,7 @@ export default class Command {
                     return res
                 }
             )
-            .catch(err => this.handleFailure(err));
+            .catch(err => this.handleFailure(err, Array.prototype.slice.call(arguments)));
 
         return doFinally(commandPromise, () => this.metrics.decrementExecutionCount());
     }
@@ -102,7 +102,7 @@ export default class Command {
         this.circuitBreaker.markSuccess();
     }
 
-    handleFailure(err) {
+    handleFailure(err, args) {
         if (this.isError(err)) {
             if (err.message === "CommandTimeOut") {
                 this.metrics.markTimeout();
@@ -113,6 +113,6 @@ export default class Command {
             }
         }
 
-        return this.fallback(err);
+        return this.fallback(err, args);
     }
 }

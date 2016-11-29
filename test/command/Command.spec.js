@@ -60,12 +60,12 @@ describe("Command", function() {
 
         var command = CommandFactory.getOrCreate("TestCommandFallback")
             .run(run)
-            .fallbackTo(function(err) {
+            .fallbackTo(function(err, args) {
+                expect(args).toEqual(['success']);
                 return q.resolve("fallback");
             })
             .timeout(1000)
             .build();
-
 
         command.execute("success").then(function(result) {
             expect(result).toBe("fallback");
