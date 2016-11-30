@@ -66,7 +66,6 @@ describe("Command", function() {
             .timeout(1000)
             .build();
 
-
         command.execute("success").then(function(result) {
             expect(result).toBe("fallback");
             var metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandFallback"});
@@ -74,6 +73,26 @@ describe("Command", function() {
             expect(metrics.getHealthCounts().errorCount).toBe(1);
             done();
         })
+    });
+
+    it("should call the fallback fn with the error & execute arguments if the run function fails", function(done) {
+        var run = function(arg) {
+            return q.Promise(function(resolve, reject, notify) {
+                throw new Error("rejected")
+            });
+        };
+
+        var command = CommandFactory.getOrCreate("TestCommandFallback")
+            .run(run)
+            .fallbackTo(function(err, args) {
+                expect(err).toBeDefined();
+                expect(args).toEqual(["arg1", "arg2"]);
+                return q.resolve("fallback");
+            })
+            .timeout(1000)
+            .build();
+
+        command.execute("arg1", "arg2").then(done);
     });
 
     it("should not execute the run command, if the circuit is open and the threshold is reached", function(done) {
@@ -104,6 +123,34 @@ describe("Command", function() {
             expect(object.run).not.toHaveBeenCalled();
             done();
         });
+    });
+
+    it("should call the fallback fn with error and execute arguments, if the circuit is open", function(done) {
+        var object = {
+            run:function() {
+                return q.Promise(function(resolve, reject, notify) {
+                    reject(new Error("error"));
+                });
+            }
+        };
+
+        spyOn(object, "run").and.callThrough();
+        var command = CommandFactory.getOrCreate("TestCommandThreshold")
+            .run(object.run)
+            .fallbackTo(function(err, args) {
+                expect(err.message).toEqual("OpenCircuitError");
+                expect(args).toEqual(["arg1", "arg2"]);
+                return q.resolve("fallback");
+            })
+            .circuitBreakerErrorThresholdPercentage(10)
+            .circuitBreakerRequestVolumeThreshold(3)
+            .build();
+
+        var metrics =CommandMetricsFactory.getOrCreate({commandKey: "TestCommandThreshold"});
+        metrics.markFailure();
+        metrics.markFailure();
+        metrics.markFailure();
+        command.execute("arg1", "arg2").then(done);
     });
 
     it("should execute the run command, if the circuit volume threshold is not reached", function(done) {

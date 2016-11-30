@@ -79,7 +79,7 @@ If it returns null or false, the call will not be marked as failure. An example 
 - *percentileWindowNumberOfBuckets* - number of buckets within the percentile window
 - *percentileWindowLength* - length of the window to keep track of execution times
 - *requestVolumeRejectionThreshold* - maximum number of concurrent requests, which can be executed. Defaults to 0, i.e. no limitation
-- *fallbackTo* - function, which will be executed if the request fails
+- *fallbackTo* - function, which will be executed if the request fails. The function will be called with the error as the 1st argument and an array of the original args as the 2nd argument 
 
 All of these options have defaults and does not have to be configured. See [HystrixConfig](https://bitbucket.org/igor_sechyn/hystrixjs/src/4cf3ba2dd28eb69481cca384bab21082670c0e00/src/util/HystrixConfig.js) for details. These can be overridden on app startup.
 
@@ -92,6 +92,7 @@ var promise = serviceCommand.execute(arguments)
 ```
 
 The *arguments* will be passed into the *run* function and the result will be a promise.
+If the *run* function fails, the arguments will passed to the fallback function (in an array) as the 2nd argument.
 
 ## How to test?
 
