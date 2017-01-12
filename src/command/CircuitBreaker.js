@@ -29,7 +29,6 @@ class CircuitBreaker {
         }
 
         if (this.circuitBreakerForceClosed) {
-            isOpen();
             return true;
         }
         return !this.isOpen() || this.allowSingleTest();

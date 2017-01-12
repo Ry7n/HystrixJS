@@ -108,4 +108,24 @@ describe ("CircuitBreaker", function() {
         expect(cb.allowRequest()).toBeTruthy();
     });
 
+    it("should allow request, if the circuitBreakerForceClosed is set to true", function() {
+        var options = getCBOptions("Test");
+        options.circuitBreakerForceClosed = true;
+        var cb = CircuitBreakerFactory.getOrCreate(options);
+        var metrics = CommandMetricsFactory.getOrCreate({commandKey: "Test"});
+        metrics.markSuccess();
+        metrics.markFailure();
+        expect(cb.isOpen()).toBeTruthy();
+        expect(cb.allowRequest()).toBeTruthy();
+    });
+
+    it("should not allow request, if the circuitBreakerForceOpened is set to true", function() {
+        var options = getCBOptions("Test");
+        options.circuitBreakerForceOpened = true;
+        var cb = CircuitBreakerFactory.getOrCreate(options);
+        var metrics = CommandMetricsFactory.getOrCreate({commandKey: "Test"});
+        metrics.markSuccess();
+        expect(cb.isOpen()).toBeFalsy();
+        expect(cb.allowRequest()).toBeFalsy();
+    });
 });
