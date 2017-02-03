@@ -247,7 +247,9 @@ describe("Command", function() {
         spyOn(object, "run").and.callThrough();
         var command = CommandFactory.getOrCreate("VolumeThresholdCommandFallback")
             .run(object.run)
-            .fallbackTo(function(err) {
+            .fallbackTo(function(err, args) {
+                expect(err.message).toBe('CommandRejected');
+                expect(args).toEqual(['success']);
                 return q.resolve("fallback");
             })
             .requestVolumeRejectionThreshold(2)

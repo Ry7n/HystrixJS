@@ -66,7 +66,7 @@ export default class Command {
         return this.Promise.resolve()
             .then(() => {
                 if (this.requestVolumeRejectionThreshold != 0 && this.metrics.getCurrentExecutionCount() >= this.requestVolumeRejectionThreshold) {
-                    return this.handleFailure(new Error("CommandRejected"));
+                    return this.handleFailure(new Error("CommandRejected"), Array.prototype.slice.call(arguments));
                 }
                 if (this.circuitBreaker.allowRequest()) {
                     return this.runCommand.apply(this, arguments);
