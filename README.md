@@ -79,7 +79,7 @@ If it returns null or false, the call will not be marked as failure. An example 
 - *percentileWindowNumberOfBuckets* - number of buckets within the percentile window
 - *percentileWindowLength* - length of the window to keep track of execution times
 - *requestVolumeRejectionThreshold* - maximum number of concurrent requests, which can be executed. Defaults to 0, i.e. no limitation
-- *fallbackTo* - function, which will be executed if the request fails. The function will be called with the error as the 1st argument and an array of the original args as the 2nd argument 
+- *fallbackTo* - function, which will be executed if the request fails. The function will be called with the error as the 1st argument and an array of the original args as the 2nd argument
 
 All of these options have defaults and does not have to be configured. See [HystrixConfig](https://bitbucket.org/igor_sechyn/hystrixjs/src/4cf3ba2dd28eb69481cca384bab21082670c0e00/src/util/HystrixConfig.js) for details. These can be overridden on app startup.
 
@@ -158,7 +158,10 @@ The library provides a module [HystrixSSEStream](https://bitbucket.org/igor_sech
 
 ![dashboard.png](https://bitbucket.org/repo/zq8Kzy/images/2774708950-dashboard.png)
 
-In order to use it, the service must expose another end point, which writes the SSE data into response:
+In order to use it, the service must include RxJs, either from
+[`rx@>=3.0.0`](https://www.npmjs.com/package/rx) or
+[`rxjs@^5.0.0`](https://www.npmjs.com/package/rxjs), and
+expose a monitoring end point, which writes the SSE data into response:
 ```javascript
 var hystrixSSEStream = require('hystrixjs').hystrixSSEStream;
 function hystrixStreamResponse(request, response) {
@@ -169,7 +172,8 @@ function hystrixStreamResponse(request, response) {
         function onNext(sseData) {
             response.write('data: ' + sseData + '\n\n');
         },
-        function onError(error) {console.log(error);
+        function onError(error) {
+            console.log(error);
         },
         function onComplete() {
             return response.end();
@@ -177,6 +181,9 @@ function hystrixStreamResponse(request, response) {
     );
 };
 ```
+
+Failure to include either `rx` or `rxjs` will throw an Error at load
+time. If both `rx` and `rxjs` are included, `rxjs` will be used.
 
 ## Promises
 

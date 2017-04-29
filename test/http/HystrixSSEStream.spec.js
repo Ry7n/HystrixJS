@@ -10,12 +10,12 @@ describe("HystrixSSEStream", function() {
         CommandMetricsFactory.resetCache();
     });
 
-    function executeCommand(commandKey) {
+    function executeCommand(commandKey, timeout = 0) {
         var run = function(arg) {
             return q.Promise(function(resolve, reject, notify) {
                 setTimeout(function() {
                     resolve(arg);
-                }, 1000)
+                }, timeout)
             });
         };
 
@@ -23,22 +23,27 @@ describe("HystrixSSEStream", function() {
             .run(run)
             .build();
 
-
         command.execute("success");
     }
-    it("should poll metrics every 5 seconds", function() {
-        executeCommand("HystrixSSECommand1");
-        executeCommand("HystrixSSECommand1");
-        executeCommand("HystrixSSECommand2");
-        executeCommand("HystrixSSECommand2");
-        setTimeout(function() {
-            executeCommand("HystrixSSECommand3");
-            var stream = HystrixSSEStream.toObservable();
-            var subscription = stream.subscribe(
-                function(next) {
-                    subscription.dispose();
-                }
-            );
-        }, 1001);
+
+    describe("toObservable", () => {
+        it("should return json string metrics", (done) => {
+            executeCommand("HystrixSSECommand1", 0);
+            HystrixSSEStream.toObservable(0)
+                .first()
+                .map(JSON.parse)
+                .subscribe(
+                    metrics => {
+                        expect(metrics.type).toBe("HystrixCommand");
+                        expect(metrics.name).toBe("HystrixSSECommand1");
+                        expect(metrics.isCircuitBreakerOpen).toBeFalsy();
+                    },
+                    e => {
+                        fail(e);
+                        done();
+                    },
+                    done
+                );
+        });
     });
 });
