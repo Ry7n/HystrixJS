@@ -23,27 +23,29 @@ describe("HystrixSSEStream", function() {
             .run(run)
             .build();
 
-        command.execute("success");
+        return command.execute("success");
     }
 
     describe("toObservable", () => {
         it("should return json string metrics", (done) => {
-            executeCommand("HystrixSSECommand1", 0);
-            HystrixSSEStream.toObservable(0)
-                .first()
-                .map(JSON.parse)
-                .subscribe(
-                    metrics => {
-                        expect(metrics.type).toBe("HystrixCommand");
-                        expect(metrics.name).toBe("HystrixSSECommand1");
-                        expect(metrics.isCircuitBreakerOpen).toBeFalsy();
-                    },
-                    e => {
-                        fail(e);
-                        done();
-                    },
-                    done
-                );
+            executeCommand("HystrixSSECommand1", 0)
+              .then(() =>
+                  HystrixSSEStream.toObservable(0)
+                      .first()
+                      .map(JSON.parse)
+                      .subscribe(
+                          metrics => {
+                              expect(metrics.type).toBe("HystrixCommand");
+                              expect(metrics.name).toBe("HystrixSSECommand1");
+                              expect(metrics.isCircuitBreakerOpen).toBeFalsy();
+                          },
+                          e => {
+                              fail(e);
+                              done();
+                          },
+                          done
+                      )
+              );
         });
     });
 });

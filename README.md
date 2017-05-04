@@ -1,8 +1,26 @@
 # HystrixJS - resilience library for NodeJs applications
 
-[![Build Status](https://semaphoreci.com/api/v1/projects/7e3f7d85-125e-4deb-93f4-dd3f113952a0/517219/badge.svg)](https://semaphoreci.com/igorsechyn/hystrixjs)      
+[![npm version](https://badge.fury.io/js/hystrixjs.svg)](https://badge.fury.io/js/hystrixjs) [![Build Status](https://semaphoreci.com/api/v1/projects/7e3f7d85-125e-4deb-93f4-dd3f113952a0/517219/badge.svg)](https://semaphoreci.com/igorsechyn/hystrixjs)      
 
 This library is inspired by the by the the Netflix [Hystrix](https://github.com/Netflix/Hystrix/wiki/) module for Java applications, which "is a latency and fault tolerance library designed to isolate points of access to remote systems, services and 3rd party libraries, stop cascading failure and enable resilience in complex distributed systems where failure is inevitable".
+
+## Including it in your project
+
+Install the hystrixjs via npm.
+
+```
+npm --save hystrixjs
+```
+
+### RxJs
+
+RxJs is required for the optional monitoring event stream.
+[RxJs 5](https://www.npmjs.com/package/rxjs) is an peer dependency and will
+generate an NPM warning if missing. [RxJs 3 and 4](https://www.npmjs.com/package/rx)
+are supported as peers but are deprecated and not listed in the `package.json`
+of this project. If you have included `rx@>=3.0.0` or are not using the
+monitoring event stream you can ignore NPM's peer dependency warning.
+For more details see [Monitoring](#monitoring) below.
 
 ## How does it work?
 
@@ -107,7 +125,7 @@ circuitFactory.resetCache();
 commandFactory.resetCache();
 ```
 
-The same problems occur during integration tests, only in this case there is no direct access to the artefacts. There could be two different strategies to solve this problem:
+The same problems occur during integration tests, only in this case there is no direct access to the artifacts. There could be two different strategies to solve this problem:
 
 - restarting the service under test before each test, which can significantly increase the execution time
 - adding and calling an endpoint to reset the metrics before each test
@@ -158,7 +176,7 @@ The library provides a module [HystrixSSEStream](https://bitbucket.org/igor_sech
 
 ![dashboard.png](https://bitbucket.org/repo/zq8Kzy/images/2774708950-dashboard.png)
 
-In order to use it, the service must include RxJs, either from
+In order to use this the service must include RxJs, either from
 [`rx@>=3.0.0`](https://www.npmjs.com/package/rx) or
 [`rxjs@^5.0.0`](https://www.npmjs.com/package/rxjs), and
 expose a monitoring end point, which writes the SSE data into response:
