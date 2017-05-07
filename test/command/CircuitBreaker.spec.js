@@ -12,7 +12,6 @@ describe ("CircuitBreaker", function() {
     });
 
     function getCBOptions(commandKey) {
-
         return {
             circuitBreakerSleepWindowInMilliseconds: 1000,
             commandKey: commandKey,
@@ -83,7 +82,7 @@ describe ("CircuitBreaker", function() {
         support.fastForwardActualTime(CircuitBreakerFactoryRewired, 1201);
         expect(cb.isOpen()).toBeTruthy();
         expect(cb.allowRequest()).toBeFalsy();
-        
+
         support.fastForwardActualTime(CircuitBreakerFactoryRewired, 1501);
         expect(cb.isOpen()).toBeTruthy();
         expect(cb.allowRequest()).toBeFalsy();

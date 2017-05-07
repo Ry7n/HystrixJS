@@ -21,7 +21,16 @@ gulp.task('babel', function (cb) {
 });
 
 gulp.task('test', function () {
-    return gulp.src('test/**/*.spec.js')
+    return gulp.src(['test/**/*.spec.js', '!test/http/HystrixSSEStream-missing-deps.spec.js'])
+        .pipe(jasmine({
+            verbose:true,
+            includeStackTrace:true
+        })
+    );
+});
+
+gulp.task('test-missing-deps', function () {
+    return gulp.src(['test/**/*.spec.js', '!test/http/HystrixSSEStream.spec.js'])
         .pipe(jasmine({
             verbose:true,
             includeStackTrace:true

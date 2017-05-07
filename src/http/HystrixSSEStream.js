@@ -1,13 +1,15 @@
 import {Factory as CommandMetricsFactory} from "../metrics/CommandMetrics";
 import CircuitBreakFactory from "../command/CircuitBreaker";
-import rx from "rx";
 import ActualTime from "../util/ActualTime";
 import RollingNumberEvent from "../metrics/RollingNumberEvent";
+import requireFirst from "../util/requireFirst";
+
+let rx = requireFirst(["rxjs", "rx"], "HystrixSSEStream requires either rx@>=3.0.0 or rxjs@^5.0.0");
 
 export default class HystrixSSEStream {
-    static toObservable() {
+    static toObservable(intervalMs = 2000) {
         let observableMetrics = rx.Observable
-            .interval(2000)
+            .interval(intervalMs)
             .flatMap(() => {
                 return rx.Observable.from(CommandMetricsFactory.getAllMetrics());
             })

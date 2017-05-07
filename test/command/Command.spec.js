@@ -32,13 +32,13 @@ describe("Command", function() {
             return q.Promise(function(resolve, reject, notify) {
                 setTimeout(function() {
                     resolve(arg);
-                }, 10000);
+                }, 100);
             });
         };
 
         var command = CommandFactory.getOrCreate("TestCommandTimeout")
             .run(run)
-            .timeout(500)
+            .timeout(50)
             .build();
 
         expect(command).not.toBeUndefined();
@@ -63,7 +63,7 @@ describe("Command", function() {
             .fallbackTo(function(err) {
                 return q.resolve("fallback");
             })
-            .timeout(1000)
+            .timeout(100)
             .build();
 
         command.execute("success").then(function(result) {
@@ -89,7 +89,7 @@ describe("Command", function() {
                 expect(args).toEqual(["arg1", "arg2"]);
                 return q.resolve("fallback");
             })
-            .timeout(1000)
+            .timeout(100)
             .build();
 
         command.execute("arg1", "arg2").then(done);
@@ -182,8 +182,7 @@ describe("Command", function() {
         });
     });
 
-    it("should return fallback and not mark failure, if the command failed but with expected error", function() {
-
+    it("should return fallback and not mark failure, if the command failed but with expected error", function(done) {
         var command = CommandFactory.getOrCreate("TestCommandErrorHandler")
             .run(function() {
                 return q.Promise(function(resolve, reject, notify) {
@@ -278,11 +277,11 @@ describe("Command", function() {
 
         var command = CommandFactory.getOrCreate("QCommand")
             .run(run)
+            .timeout(100)
             .build();
 
         var promise = command.execute("success");
         expect(promise).toBe(q(promise));
         promise.then(done, failTest(done));
     });
-
 });
