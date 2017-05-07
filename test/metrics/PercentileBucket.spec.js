@@ -1,8 +1,9 @@
-var Bucket = require("../../lib/metrics/PercentileBucket");
-var RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
+'use strict';
+
+const Bucket = require("../../lib/metrics/PercentileBucket");
 
 describe("PercentileBucket", function() {
-    var underTest;
+    let underTest;
 
     beforeEach(function() {
         underTest = new Bucket(5000);

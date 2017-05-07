@@ -1,5 +1,3 @@
-var HystrixSSEStream =
-
 describe("HystrixSSEStream", function() {
     it("should not load with missing dependencies", () => {
         expect(() => require("../../lib/http/HystrixSSEStream"))

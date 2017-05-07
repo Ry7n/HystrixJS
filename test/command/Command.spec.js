@@ -1,26 +1,28 @@
-var CommandFactory = require("../../lib/command/CommandFactory");
-var q = require("q");
-var CommandMetricsFactory = require("../../lib/metrics/CommandMetrics").Factory;
-var failTest = require("../support").failTest;
-var RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
-var HystrixConfig = require("../../lib/util/HystrixConfig");
+'use strict';
+
+const CommandFactory = require("../../lib/command/CommandFactory");
+const q = require("q");
+const CommandMetricsFactory = require("../../lib/metrics/CommandMetrics").Factory;
+const failTest = require("../support").failTest;
+const RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
+const HystrixConfig = require("../../lib/util/HystrixConfig");
 
 describe("Command", function() {
     it("should resolve with expected results", function(done) {
-        var run = function(arg) {
+        const run = function(arg) {
             return q.Promise(function(resolve, reject, notify) {
                 resolve(arg);
             });
         };
 
-        var command = CommandFactory.getOrCreate("TestCommand")
+        const command = CommandFactory.getOrCreate("TestCommand")
             .run(run)
             .build();
 
         expect(command).not.toBeUndefined();
         command.execute("success").then(function(result) {
             expect(result).toBe("success");
-            var metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommand"});
+            const metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommand"});
             expect(metrics.getHealthCounts().totalCount).toBe(1);
             expect(metrics.getHealthCounts().errorCount).toBe(0);
             done();
@@ -28,7 +30,7 @@ describe("Command", function() {
     });
 
     it("should timeout if the function does not resolve within the configured timeout", function(done) {
-        var run = function(arg) {
+        const run = function(arg) {
             return q.Promise(function(resolve, reject, notify) {
                 setTimeout(function() {
                     resolve(arg);
@@ -36,7 +38,7 @@ describe("Command", function() {
             });
         };
 
-        var command = CommandFactory.getOrCreate("TestCommandTimeout")
+        const command = CommandFactory.getOrCreate("TestCommandTimeout")
             .run(run)
             .timeout(50)
             .build();
@@ -44,7 +46,7 @@ describe("Command", function() {
         expect(command).not.toBeUndefined();
         command.execute("success").catch(function(err) {
             expect(err.message).toBe("CommandTimeOut");
-            var metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandTimeout"});
+            const metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandTimeout"});
             expect(metrics.getHealthCounts().totalCount).toBe(1);
             expect(metrics.getHealthCounts().errorCount).toBe(1);
             done();
@@ -52,13 +54,13 @@ describe("Command", function() {
     });
 
     it("should resolve with fallback if the run function fails", function(done) {
-        var run = function(arg) {
+        const run = function(arg) {
             return q.Promise(function(resolve, reject, notify) {
                 throw new Error("rejected")
             });
         };
 
-        var command = CommandFactory.getOrCreate("TestCommandFallback")
+        const command = CommandFactory.getOrCreate("TestCommandFallback")
             .run(run)
             .fallbackTo(function(err) {
                 return q.resolve("fallback");
@@ -68,7 +70,7 @@ describe("Command", function() {
 
         command.execute("success").then(function(result) {
             expect(result).toBe("fallback");
-            var metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandFallback"});
+            const metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandFallback"});
             expect(metrics.getHealthCounts().totalCount).toBe(1);
             expect(metrics.getHealthCounts().errorCount).toBe(1);
             done();
@@ -76,13 +78,13 @@ describe("Command", function() {
     });
 
     it("should call the fallback fn with the error & execute arguments if the run function fails", function(done) {
-        var run = function(arg) {
+        const run = function(arg) {
             return q.Promise(function(resolve, reject, notify) {
                 throw new Error("rejected")
             });
         };
 
-        var command = CommandFactory.getOrCreate("TestCommandFallback")
+        const command = CommandFactory.getOrCreate("TestCommandFallback")
             .run(run)
             .fallbackTo(function(err, args) {
                 expect(err).toBeDefined();
@@ -96,7 +98,7 @@ describe("Command", function() {
     });
 
     it("should not execute the run command, if the circuit is open and the threshold is reached", function(done) {
-        var object = {
+        const object = {
             run:function() {
                 return q.Promise(function(resolve, reject, notify) {
                     reject(new Error("error"));
@@ -105,7 +107,7 @@ describe("Command", function() {
         };
 
         spyOn(object, "run").and.callThrough();
-        var command = CommandFactory.getOrCreate("TestCommandThreshold")
+        const command = CommandFactory.getOrCreate("TestCommandThreshold")
             .run(object.run)
             .fallbackTo(function(err) {
                 return q.resolve("fallback");
@@ -114,7 +116,7 @@ describe("Command", function() {
             .circuitBreakerRequestVolumeThreshold(3)
             .build();
 
-        var metrics =CommandMetricsFactory.getOrCreate({commandKey: "TestCommandThreshold"});
+        const metrics =CommandMetricsFactory.getOrCreate({commandKey: "TestCommandThreshold"});
         metrics.markFailure();
         metrics.markFailure();
         metrics.markFailure();
@@ -126,7 +128,7 @@ describe("Command", function() {
     });
 
     it("should call the fallback fn with error and execute arguments, if the circuit is open", function(done) {
-        var object = {
+        const object = {
             run:function() {
                 return q.Promise(function(resolve, reject, notify) {
                     reject(new Error("error"));
@@ -135,7 +137,7 @@ describe("Command", function() {
         };
 
         spyOn(object, "run").and.callThrough();
-        var command = CommandFactory.getOrCreate("TestCommandThreshold")
+        const command = CommandFactory.getOrCreate("TestCommandThreshold")
             .run(object.run)
             .fallbackTo(function(err, args) {
                 expect(err.message).toEqual("OpenCircuitError");
@@ -146,7 +148,7 @@ describe("Command", function() {
             .circuitBreakerRequestVolumeThreshold(3)
             .build();
 
-        var metrics =CommandMetricsFactory.getOrCreate({commandKey: "TestCommandThreshold"});
+        const metrics =CommandMetricsFactory.getOrCreate({commandKey: "TestCommandThreshold"});
         metrics.markFailure();
         metrics.markFailure();
         metrics.markFailure();
@@ -154,7 +156,7 @@ describe("Command", function() {
     });
 
     it("should execute the run command, if the circuit volume threshold is not reached", function(done) {
-        var object = {
+        const object = {
             run:function() {
                 return q.Promise(function(resolve, reject, notify) {
                     reject(new Error("error"));
@@ -163,7 +165,7 @@ describe("Command", function() {
         };
 
         spyOn(object, "run").and.callThrough();
-        var command = CommandFactory.getOrCreate("TestCommandThresholdNotReached")
+        const command = CommandFactory.getOrCreate("TestCommandThresholdNotReached")
             .run(object.run)
             .fallbackTo(function(err) {
                 return q.resolve("fallback");
@@ -172,7 +174,7 @@ describe("Command", function() {
             .circuitBreakerRequestVolumeThreshold(3)
             .build();
 
-        var metrics =CommandMetricsFactory.getOrCreate({commandKey: "TestCommandThresholdNotReached"});
+        const metrics =CommandMetricsFactory.getOrCreate({commandKey: "TestCommandThresholdNotReached"});
         metrics.markFailure();
         metrics.markFailure();
         command.execute().then(function(result) {
@@ -183,7 +185,7 @@ describe("Command", function() {
     });
 
     it("should return fallback and not mark failure, if the command failed but with expected error", function(done) {
-        var command = CommandFactory.getOrCreate("TestCommandErrorHandler")
+        const command = CommandFactory.getOrCreate("TestCommandErrorHandler")
             .run(function() {
                 return q.Promise(function(resolve, reject, notify) {
                     reject(new Error("custom-error"));
@@ -202,28 +204,28 @@ describe("Command", function() {
             .circuitBreakerRequestVolumeThreshold(0)
             .build();
 
-        var metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandErrorHandler"});
+        const metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandErrorHandler"});
         command.execute().then(function(result) {
             expect(result).toBe("fallback");
-            var errorCount = metrics.getHealthCounts().errorCount;
+            const errorCount = metrics.getHealthCounts().errorCount;
             expect(errorCount).toBe(0);
             done();
         });
     });
 
     it("should reject request immediately, if the request volume threshold is reached", function(done) {
-        var run = function(arg) {
+        const run = function(arg) {
             return q.Promise(function(resolve, reject, notify) {
                 resolve(arg);
             });
         };
 
-        var command = CommandFactory.getOrCreate("VolumeThresholdCommand")
+        const command = CommandFactory.getOrCreate("VolumeThresholdCommand")
             .run(run)
             .requestVolumeRejectionThreshold(2)
             .build();
 
-        var metrics = CommandMetricsFactory.getOrCreate({commandKey: "VolumeThresholdCommand"});
+        const metrics = CommandMetricsFactory.getOrCreate({commandKey: "VolumeThresholdCommand"});
         metrics.incrementExecutionCount();
         metrics.incrementExecutionCount();
         command.execute("success")
@@ -235,7 +237,7 @@ describe("Command", function() {
     });
 
     it("should execute fallback, if the request volume threshold is reached", function(done) {
-        var object = {
+        const object = {
             run:function() {
                 return q.Promise(function(resolve, reject, notify) {
                     reject(new Error("error"));
@@ -244,7 +246,7 @@ describe("Command", function() {
         };
 
         spyOn(object, "run").and.callThrough();
-        var command = CommandFactory.getOrCreate("VolumeThresholdCommandFallback")
+        const command = CommandFactory.getOrCreate("VolumeThresholdCommandFallback")
             .run(object.run)
             .fallbackTo(function(err, args) {
                 expect(err.message).toBe('CommandRejected');
@@ -254,7 +256,7 @@ describe("Command", function() {
             .requestVolumeRejectionThreshold(2)
             .build();
 
-        var metrics = CommandMetricsFactory.getOrCreate({commandKey: "VolumeThresholdCommandFallback"});
+        const metrics = CommandMetricsFactory.getOrCreate({commandKey: "VolumeThresholdCommandFallback"});
         metrics.incrementExecutionCount();
         metrics.incrementExecutionCount();
         command.execute("success").then(function(result) {
@@ -266,7 +268,7 @@ describe("Command", function() {
     });
 
     it("should resolve with q promise when registered", function(done) {
-        var run = function(arg) {
+        const run = function(arg) {
             //return custom thenable
             return {
                 then: function(fn) {fn(arg)}
@@ -275,12 +277,12 @@ describe("Command", function() {
 
         HystrixConfig.init({"hystrix.promise.implementation": q.Promise});
 
-        var command = CommandFactory.getOrCreate("QCommand")
+        const command = CommandFactory.getOrCreate("QCommand")
             .run(run)
             .timeout(100)
             .build();
 
-        var promise = command.execute("success");
+        const promise = command.execute("success");
         expect(promise).toBe(q(promise));
         promise.then(done, failTest(done));
     });

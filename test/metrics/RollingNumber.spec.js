@@ -1,33 +1,35 @@
-var RollingNumber = require("../../lib/metrics/RollingNumber");
-var RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
-var rewire = require("rewire");
-var support = require("../support");
+'use strict';
+
+const RollingNumber = require("../../lib/metrics/RollingNumber");
+const RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
+const rewire = require("rewire");
+const support = require("../support");
 
 describe("RollingNumber", function() {
 
     it("should be initialised with default values", function() {
-        var underTest = new RollingNumber();
+        const underTest = new RollingNumber();
         expect(underTest.windowLength).toBe(10000);
         expect(underTest.numberOfBuckets).toBe(10)
     });
 
     it("should be initialised with option values", function() {
-        var underTest = new RollingNumber({timeInMillisecond:5000, numberOfBuckets:5});
+        const underTest = new RollingNumber({timeInMillisecond:5000, numberOfBuckets:5});
         expect(underTest.windowLength).toBe(5000);
         expect(underTest.numberOfBuckets).toBe(5)
     });
 
     it("should increment a value in the latest bucket", function() {
-        var underTest = new RollingNumber({windowLength: 60000, numberOfBuckets: 5});
-        var lastBucket = underTest.getCurrentBucket();
+        const underTest = new RollingNumber({windowLength: 60000, numberOfBuckets: 5});
+        const lastBucket = underTest.getCurrentBucket();
         underTest.increment(RollingNumberEvent.SUCCESS);
         underTest.increment(RollingNumberEvent.SUCCESS);
         expect(lastBucket.get(RollingNumberEvent.SUCCESS)).toBe(2);
     });
 
     it("should roll the last bucket", function() {
-        var RollingNumberRewired = rewire("../../lib/metrics/RollingNumber");
-        var underTest = new RollingNumberRewired();
+        const RollingNumberRewired = rewire("../../lib/metrics/RollingNumber");
+        const underTest = new RollingNumberRewired();
 
         underTest.increment(RollingNumberEvent.SUCCESS);
         support.fastForwardActualTime(RollingNumberRewired, 1001);
@@ -37,8 +39,8 @@ describe("RollingNumber", function() {
     });
 
     it("should reset the window if no activity was reported for the period longer than the window itself", function() {
-        var RollingNumberRewired = rewire("../../lib/metrics/RollingNumber");
-        var underTest = new RollingNumberRewired({timeInMillisecond: 1000, numberOfBuckets: 2});
+        const RollingNumberRewired = rewire("../../lib/metrics/RollingNumber");
+        const underTest = new RollingNumberRewired({timeInMillisecond: 1000, numberOfBuckets: 2});
         underTest.increment(RollingNumberEvent.SUCCESS);
         underTest.rollWindow(Date.now());
         underTest.increment(RollingNumberEvent.SUCCESS);
@@ -52,7 +54,7 @@ describe("RollingNumber", function() {
 
 
     it("should not exceed the max number of buckets", function() {
-        var underTest = new RollingNumber({windowLength: 60000, numberOfBuckets: 2});
+        const underTest = new RollingNumber({windowLength: 60000, numberOfBuckets: 2});
         underTest.rollWindow(new Date().getTime());
         underTest.rollWindow(new Date().getTime());
         underTest.rollWindow(new Date().getTime());
@@ -61,8 +63,8 @@ describe("RollingNumber", function() {
     });
 
     it("should return the sum of the values from all buckets", function() {
-        var RollingNumberRewired = rewire("../../lib/metrics/RollingNumber");
-        var underTest = new RollingNumberRewired();
+        const RollingNumberRewired = rewire("../../lib/metrics/RollingNumber");
+        const underTest = new RollingNumberRewired();
 
         underTest.increment(RollingNumberEvent.SUCCESS);
 

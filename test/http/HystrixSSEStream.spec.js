@@ -1,7 +1,9 @@
-var HystrixSSEStream = require("../../lib/http/HystrixSSEStream");
-var CommandFactory = require("../../lib/command/CommandFactory");
-var CommandMetricsFactory = require("../../lib/metrics/CommandMetrics").Factory;
-var q = require("q");
+'use strict';
+
+const HystrixSSEStream = require("../../lib/http/HystrixSSEStream");
+const CommandFactory = require("../../lib/command/CommandFactory");
+const CommandMetricsFactory = require("../../lib/metrics/CommandMetrics").Factory;
+const q = require("q");
 
 describe("HystrixSSEStream", function() {
 
@@ -11,7 +13,7 @@ describe("HystrixSSEStream", function() {
     });
 
     function executeCommand(commandKey, timeout = 0) {
-        var run = function(arg) {
+        const run = function(arg) {
             return q.Promise(function(resolve, reject, notify) {
                 setTimeout(function() {
                     resolve(arg);
@@ -19,7 +21,7 @@ describe("HystrixSSEStream", function() {
             });
         };
 
-        var command = CommandFactory.getOrCreate(commandKey)
+        const command = CommandFactory.getOrCreate(commandKey)
             .run(run)
             .build();
 

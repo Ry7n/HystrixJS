@@ -1,8 +1,10 @@
-var Bucket = require("../../lib/metrics/CounterBucket");
-var RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
+'use strict';
+
+const Bucket = require("../../lib/metrics/CounterBucket");
+const RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
 
 describe("CounterBucket", function() {
-    var underTest;
+    let underTest;
 
     beforeEach(function() {
         underTest = new Bucket(5000);
