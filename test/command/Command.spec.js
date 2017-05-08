@@ -30,17 +30,19 @@ describe("Command", function () {
     });
 
     it("should timeout if the function does not resolve within the configured timeout", function (done) {
+        jasmine.clock().install();
         const run = function (arg) {
             return q.Promise(function (resolve, reject, notify) {
                 setTimeout(function () {
                     resolve(arg);
-                }, 100);
+                }, 12000);
+                jasmine.clock().tick(10000);
             });
         };
 
         const command = CommandFactory.getOrCreate("TestCommandTimeout")
             .run(run)
-            .timeout(50)
+            .timeout(10000)
             .build();
 
         expect(command).not.toBeUndefined();
@@ -49,6 +51,7 @@ describe("Command", function () {
             const metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandTimeout"});
             expect(metrics.getHealthCounts().totalCount).toBe(1);
             expect(metrics.getHealthCounts().errorCount).toBe(1);
+            jasmine.clock().uninstall();
             done();
         })
     });
@@ -65,7 +68,6 @@ describe("Command", function () {
             .fallbackTo(function (err) {
                 return q.resolve("fallback");
             })
-            .timeout(100)
             .build();
 
         command.execute("success").then(function (result) {
@@ -91,7 +93,6 @@ describe("Command", function () {
                 expect(args).toEqual(["arg1", "arg2"]);
                 return q.resolve("fallback");
             })
-            .timeout(100)
             .build();
 
         command.execute("arg1", "arg2").then(done);
@@ -281,7 +282,6 @@ describe("Command", function () {
 
         const command = CommandFactory.getOrCreate("QCommand")
             .run(run)
-            .timeout(100)
             .build();
 
         const promise = command.execute("success");
