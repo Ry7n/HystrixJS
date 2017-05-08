@@ -14,8 +14,8 @@ function addExecutionTimes(rollingPercentile) {
     rollingPercentile.addValue(3);
 }
 
-describe("RollingPercentile", function() {
-    it("should return 0 values before the first roll", function() {
+describe("RollingPercentile", function () {
+    it("should return 0 values before the first roll", function () {
         const underTest = new RollingPercentile();
         addExecutionTimes(underTest);
         expect(underTest.getPercentile("mean")).toBe(0);
@@ -24,7 +24,7 @@ describe("RollingPercentile", function() {
 
     });
 
-    it("should roll the last bucket", function() {
+    it("should roll the last bucket", function () {
         const RollingPercentileRewired = rewire("../../lib/metrics/RollingPercentile");
         const underTest = new RollingPercentileRewired();
         underTest.addValue(1);
@@ -33,7 +33,7 @@ describe("RollingPercentile", function() {
         expect(underTest.buckets.length).toBe(2);
     });
 
-    it("should calculate correct percentile after the first window roll", function() {
+    it("should calculate correct percentile after the first window roll", function () {
         const underTest = new RollingPercentile();
         addExecutionTimes(underTest);
         underTest.rollWindow(new Date().getTime());
@@ -42,7 +42,7 @@ describe("RollingPercentile", function() {
         expect(underTest.getPercentile(50).toFixed(2)).toBe("3.00");
     });
 
-    it("should not exceed the max number of buckets", function() {
+    it("should not exceed the max number of buckets", function () {
         const underTest = new RollingPercentile({timeInMillisecond: 10000, numberOfBuckets: 2});
         underTest.rollWindow(new Date().getTime());
         underTest.rollWindow(new Date().getTime());
@@ -51,7 +51,7 @@ describe("RollingPercentile", function() {
         expect(underTest.buckets.length).toBe(2);
     });
 
-    it("should consider values values from all buckets", function() {
+    it("should consider values values from all buckets", function () {
         const underTest = new RollingPercentile();
         addExecutionTimes(underTest);
         underTest.rollWindow(new Date().getTime());

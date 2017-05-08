@@ -2,14 +2,14 @@
 
 const Bucket = require("../../lib/metrics/PercentileBucket");
 
-describe("PercentileBucket", function() {
+describe("PercentileBucket", function () {
     let underTest;
 
-    beforeEach(function() {
+    beforeEach(function () {
         underTest = new Bucket(5000);
     });
 
-    it("should add value to the bucket values", function() {
+    it("should add value to the bucket values", function () {
         underTest.addValue(1);
         expect(underTest.values).not.toBeUndefined();
         underTest.addValue(1);

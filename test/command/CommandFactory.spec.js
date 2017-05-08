@@ -2,18 +2,18 @@ const CommandFactory = require("../../lib/command/CommandFactory");
 const CommandMetricsFactory = require("../../lib/metrics/CommandMetrics").Factory;
 const CircuitBreakerFactory = require("../../lib/command/CircuitBreaker");
 
-describe("CommandFactory", function() {
-    beforeEach(function() {
+describe("CommandFactory", function () {
+    beforeEach(function () {
         CommandFactory.resetCache();
         CommandMetricsFactory.resetCache();
     });
 
-    it("should use the defaults set in HystrixConfig", function() {
+    it("should use the defaults set in HystrixConfig", function () {
         const command = CommandFactory.getOrCreate("TestConfig").build();
         expect(command.timeout).toBe(30000);
         expect(command.requestVolumeRejectionThreshold).toBe(0);
 
-        const metrics = CommandMetricsFactory.getOrCreate({commandKey:"TestConfig"});
+        const metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestConfig"});
         expect(metrics.rollingCount.windowLength).toBe(10000);
         expect(metrics.rollingCount.numberOfBuckets).toBe(10);
         expect(metrics.percentileCount.windowLength).toBe(10000);
@@ -27,7 +27,7 @@ describe("CommandFactory", function() {
         expect(cb.circuitBreakerRequestVolumeThresholdValue).toBe(10);
     });
 
-    it("should override the defaults set in builder", function() {
+    it("should override the defaults set in builder", function () {
         const command = CommandFactory
             .getOrCreate("TestCustomConfig")
             .timeout(3000)
@@ -45,7 +45,7 @@ describe("CommandFactory", function() {
         expect(command.timeout).toBe(3000);
         expect(command.requestVolumeRejectionThreshold).toBe(100);
 
-        const metrics = CommandMetricsFactory.getOrCreate({commandKey:"TestCustomConfig"});
+        const metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCustomConfig"});
         expect(metrics.rollingCount.windowLength).toBe(10);
         expect(metrics.rollingCount.numberOfBuckets).toBe(1);
         expect(metrics.percentileCount.windowLength).toBe(20);
@@ -59,7 +59,7 @@ describe("CommandFactory", function() {
         expect(cb.circuitBreakerRequestVolumeThresholdValue).toBe(0);
     });
 
-    it("should pass correct config to command for circuit and metrics to recreate them after reset", function() {
+    it("should pass correct config to command for circuit and metrics to recreate them after reset", function () {
         const command = CommandFactory
             .getOrCreate("TestCustomConfig")
             .timeout(3000)

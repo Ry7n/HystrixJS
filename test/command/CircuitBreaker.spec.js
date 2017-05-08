@@ -6,9 +6,9 @@ const CommandMetrics = require("../../lib/metrics/CommandMetrics").CommandMetric
 const rewire = require("rewire");
 const support = require("../support");
 
-describe ("CircuitBreaker", function() {
+describe("CircuitBreaker", function () {
 
-    beforeEach(function() {
+    beforeEach(function () {
         CommandMetricsFactory.resetCache();
         CircuitBreakerFactory.resetCache();
     });
@@ -22,7 +22,7 @@ describe ("CircuitBreaker", function() {
         }
     }
 
-    it("should cache instances in the factory", function() {
+    it("should cache instances in the factory", function () {
         let cb = CircuitBreakerFactory.getOrCreate(getCBOptions("Test"));
         expect(cb).not.toBeUndefined();
         expect(CircuitBreakerFactory.getCache().size).toBe(1);
@@ -31,7 +31,7 @@ describe ("CircuitBreaker", function() {
         expect(CircuitBreakerFactory.getCache().size).toBe(2);
     });
 
-    it("should open circuit if error threshold is greater than error percentage", function() {
+    it("should open circuit if error threshold is greater than error percentage", function () {
         const options = getCBOptions("Test");
         const cb = CircuitBreakerFactory.getOrCreate(options);
         const metrics = CommandMetricsFactory.getOrCreate({commandKey: "Test"});
@@ -40,9 +40,9 @@ describe ("CircuitBreaker", function() {
         expect(cb.isOpen()).toBeTruthy();
     });
 
-    it("should not open circuit if the volume has not reached threshold", function() {
+    it("should not open circuit if the volume has not reached threshold", function () {
         const options = getCBOptions("Test");
-        options.circuitBreakerRequestVolumeThreshold =3;
+        options.circuitBreakerRequestVolumeThreshold = 3;
         const cb = CircuitBreakerFactory.getOrCreate(options);
         const metrics = CommandMetricsFactory.getOrCreate({commandKey: "Test"});
         metrics.markSuccess();
@@ -54,7 +54,7 @@ describe ("CircuitBreaker", function() {
         expect(cb.isOpen()).toBeTruthy();
     });
 
-    it("should retry after a configured sleep time, if the circuit was open", function() {
+    it("should retry after a configured sleep time, if the circuit was open", function () {
         const options = getCBOptions("Test");
         const CircuitBreakerFactoryRewired = rewire("../../lib/command/CircuitBreaker");
         const cb = CircuitBreakerFactoryRewired.getOrCreate(options);
@@ -68,7 +68,7 @@ describe ("CircuitBreaker", function() {
         expect(cb.allowRequest()).toBeTruthy();
     });
 
-    it("should allow only one retry after configured sleep window", function() {
+    it("should allow only one retry after configured sleep window", function () {
         const options = getCBOptions("Test");
         const CircuitBreakerFactoryRewired = rewire("../../lib/command/CircuitBreaker");
         const cb = CircuitBreakerFactoryRewired.getOrCreate(options);
@@ -98,7 +98,7 @@ describe ("CircuitBreaker", function() {
         expect(cb.allowRequest()).toBeTruthy();
     });
 
-    it("should reset metrics after the circuit was closed again", function() {
+    it("should reset metrics after the circuit was closed again", function () {
         const options = getCBOptions("Test");
         const cb = CircuitBreakerFactory.getOrCreate(options);
         const metrics = CommandMetricsFactory.getOrCreate({commandKey: "Test"});
@@ -109,7 +109,7 @@ describe ("CircuitBreaker", function() {
         expect(cb.allowRequest()).toBeTruthy();
     });
 
-    it("should allow request, if the circuitBreakerForceClosed is set to true", function() {
+    it("should allow request, if the circuitBreakerForceClosed is set to true", function () {
         const options = getCBOptions("Test");
         options.circuitBreakerForceClosed = true;
         const cb = CircuitBreakerFactory.getOrCreate(options);
@@ -120,7 +120,7 @@ describe ("CircuitBreaker", function() {
         expect(cb.allowRequest()).toBeTruthy();
     });
 
-    it("should not allow request, if the circuitBreakerForceOpened is set to true", function() {
+    it("should not allow request, if the circuitBreakerForceOpened is set to true", function () {
         const options = getCBOptions("Test");
         options.circuitBreakerForceOpened = true;
         const cb = CircuitBreakerFactory.getOrCreate(options);

@@ -1,12 +1,12 @@
 'use strict';
 
-const  sinon = require("sinon");
-const  q = require('q');
+const sinon = require("sinon");
+const q = require('q');
 
 module.exports = {
     fastForwardActualTime: function fastForward(constructorFn, milliseconds) {
-        const  actualTimeStub = sinon.stub().returns(Date.now() + milliseconds);
-        const  actualTime = {
+        const actualTimeStub = sinon.stub().returns(Date.now() + milliseconds);
+        const actualTime = {
             "getCurrentTime": actualTimeStub
         };
         constructorFn.__set__("_utilActualTime2", {
