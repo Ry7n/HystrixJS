@@ -270,12 +270,7 @@ describe("Command", function () {
 
     it("should resolve with q promise when registered", function (done) {
         const run = function (arg) {
-            //return custom thenable
-            return {
-                then: function (fn) {
-                    fn(arg)
-                }
-            }
+            return q(arg)
         };
 
         HystrixConfig.init({"hystrix.promise.implementation": q.Promise});
