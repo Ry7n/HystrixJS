@@ -1,10 +1,10 @@
-var CommandMetrics = require("../../lib/metrics/CommandMetrics").CommandMetrics;
-var RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
+'use strict';
+
+const CommandMetrics = require("../../lib/metrics/CommandMetrics").CommandMetrics;
+const RollingNumberEvent = require("../../lib/metrics/RollingNumberEvent");
 
 describe("CommandMetrics", function() {
-
-    var underTest;
-
+    let underTest;
 
     beforeEach(function() {
         underTest = new CommandMetrics("TestCommandMetrics", "defaultGroup");

@@ -7,9 +7,9 @@ import requireFirst from "../util/requireFirst";
 let rx = requireFirst(["rxjs", "rx"], "HystrixSSEStream requires either rx@>=3.0.0 or rxjs@^5.0.0");
 
 export default class HystrixSSEStream {
-    static toObservable(intervalMs = 2000) {
+    static toObservable(interval = 2000, scheduler = undefined) {
         let observableMetrics = rx.Observable
-            .interval(intervalMs)
+            .interval(interval, scheduler)
             .flatMap(() => {
                 return rx.Observable.from(CommandMetricsFactory.getAllMetrics());
             })
@@ -21,6 +21,7 @@ export default class HystrixSSEStream {
     }
 
     static toCommandJson(metrics) {
+        metrics.update();
         let json = {};
         json.type = "HystrixCommand";
         json.name = metrics.commandKey;

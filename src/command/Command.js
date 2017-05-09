@@ -16,12 +16,12 @@ function doFinally(promise, fn) {
     );
 }
 
-function timeout(promisedValue, timeMs) {
+function timeout(runWrapper, timeMs) {
 
     return new HystrixConfig.promiseImplementation((resolve, reject) => {
         let timer = setTimeout(() => reject(new Error('CommandTimeOut')), timeMs);
 
-        return doFinally(promisedValue.then(resolve, reject),
+        return doFinally(runWrapper().then(resolve, reject),
             () => clearTimeout(timer));
     });
 
@@ -80,10 +80,9 @@ export default class Command {
     runCommand() {
         this.metrics.incrementExecutionCount();
         let start = ActualTime.getCurrentTime();
-        let commandPromise = this.run.apply(this.runContext, arguments);
-        if (this.timeout > 0) {
-            commandPromise = timeout(commandPromise, this.timeout);
-        }
+        const args = arguments;
+        const runWrapper = () => this.run.apply(this.runContext, args);
+        let commandPromise = this.timeout > 0 ? timeout(runWrapper, this.timeout) : runWrapper();
         commandPromise = commandPromise.then(
                 (res) => {
                     this.handleSuccess(start);
