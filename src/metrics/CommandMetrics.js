@@ -96,6 +96,11 @@ export class CommandMetrics {
         }
     }
 
+    update() {
+        this.rollingCount.getCurrentBucket();
+        this.percentileCount.getCurrentBucket();
+    }
+
     reset() {
         this.rollingCount.reset();
         this.lastHealthCountsSnapshot = ActualTime.getCurrentTime();
