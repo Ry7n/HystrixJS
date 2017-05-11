@@ -112,6 +112,14 @@ export default class Command {
             }
         }
 
-        return this.fallback(err, args);
+        return this.fallback(err, args)
+        .then(res => {
+            this.metrics.markFallbackSuccess();
+            return res;
+        })
+        .catch(err => {
+            this.metrics.markFallbackFailure();
+            throw err;
+        });
     }
 }

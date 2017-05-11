@@ -75,4 +75,42 @@ describe("RollingNumber", function () {
         expect(underTest.buckets.length).toBe(2);
         expect(underTest.getRollingSum(RollingNumberEvent.SUCCESS)).toBe(4);
     });
+
+    it("should accumulate events over time", function () {
+        const RollingNumberRewired = rewire("../../lib/metrics/RollingNumber");
+        const underTest = new RollingNumberRewired();
+
+        underTest.increment(RollingNumberEvent.SUCCESS);
+        expect(underTest.getCurrentBucket().get(RollingNumberEvent.SUCCESS)).toBe(1);
+        expect(underTest.getCumulativeSum(RollingNumberEvent.SUCCESS)).toBe(1);
+        underTest.increment(RollingNumberEvent.SUCCESS);
+        expect(underTest.getCurrentBucket().get(RollingNumberEvent.SUCCESS)).toBe(2);
+        expect(underTest.getCumulativeSum(RollingNumberEvent.SUCCESS)).toBe(2);
+
+        support.fastForwardActualTime(RollingNumberRewired, 1500);
+        underTest.increment(RollingNumberEvent.SUCCESS);
+        underTest.increment(RollingNumberEvent.SUCCESS);
+        underTest.increment(RollingNumberEvent.SUCCESS);
+
+        expect(underTest.getCurrentBucket().get(RollingNumberEvent.SUCCESS)).toBe(3);
+        expect(underTest.getCumulativeSum(RollingNumberEvent.SUCCESS)).toBe(5);
+    });
+
+    it("should accumulate events when reset happens", function () {
+        const RollingNumberRewired = rewire("../../lib/metrics/RollingNumber");
+        const underTest = new RollingNumberRewired({timeInMillisecond: 1000, numberOfBuckets: 2});
+        underTest.increment(RollingNumberEvent.SUCCESS);
+        expect(underTest.getCumulativeSum(RollingNumberEvent.SUCCESS)).toBe(1);
+        underTest.rollWindow(Date.now());
+        expect(underTest.getCumulativeSum(RollingNumberEvent.SUCCESS)).toBe(1);
+        underTest.increment(RollingNumberEvent.SUCCESS);
+        expect(underTest.buckets.length).toBe(2);
+
+        support.fastForwardActualTime(RollingNumberRewired, 1001);
+
+        underTest.increment(RollingNumberEvent.SUCCESS);
+        expect(underTest.buckets.length).toBe(1);
+        expect(underTest.getCumulativeSum(RollingNumberEvent.SUCCESS)).toBe(3);
+    });
+
 });
