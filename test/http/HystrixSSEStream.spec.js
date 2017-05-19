@@ -12,8 +12,7 @@ const sinon = require('sinon');
 describe('HystrixSSEStream', function() {
     let testScheduler;
 
-    function stubTime(milliseconds) {
-        milliseconds = milliseconds || 2000
+    function stubTime(milliseconds = 2000) {
         testScheduler = new rx.VirtualTimeScheduler(undefined, milliseconds);
     }
 
@@ -22,8 +21,7 @@ describe('HystrixSSEStream', function() {
         CommandMetricsFactory.resetCache();
     });
 
-    function executeCommand(commandKey, timeout) {
-        timeout = timeout || 0;
+    function executeCommand(commandKey, timeout  0) {
         const run = function(arg) {
             return q.Promise(function(resolve, reject, notify) {
                 setTimeout(function() {

@@ -101,7 +101,7 @@ describe("Command", function () {
         })
     });
 
-    it("should resolve with fallback and record FALLBACK_FAILURE event when fallback fails", function (done) {
+    it("it should reject with error with fallback and record FALLBACK_FAILURE event when fallback fails", function (done) {
         const run = function (arg) {
             return q.Promise(function (resolve, reject, notify) {
                 throw new Error("rejected")
