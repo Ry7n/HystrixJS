@@ -21,7 +21,7 @@ describe('HystrixSSEStream', function() {
         CommandMetricsFactory.resetCache();
     });
 
-    function executeCommand(commandKey, timeout  0) {
+    function executeCommand(commandKey, timeout = 0) {
         const run = function(arg) {
             return q.Promise(function(resolve, reject, notify) {
                 setTimeout(function() {
