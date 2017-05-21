@@ -16,13 +16,6 @@ describe("CumulativeSum", function () {
         expect(comulativeSum.get(RollingNumberEvent.SUCCESS)).toBe(2);
     });
 
-    it("should continue to accumulate value for a valid events", function () {
-        bucket.increment(RollingNumberEvent.TIMEOUT);
-        comulativeSum.addBucket(bucket);
-        expect(comulativeSum.get(RollingNumberEvent.SUCCESS)).toBe(4);
-        expect(comulativeSum.get(RollingNumberEvent.TIMEOUT)).toBe(1);
-    });
-
     it("should return 0, if event was not recorded yet", function () {
         expect(comulativeSum.get(RollingNumberEvent.FAILURE)).toBe(0);
     });
