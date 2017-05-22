@@ -79,6 +79,50 @@ describe("Command", function () {
         })
     });
 
+    it("should resolve with fallback and record FALLBACK_SUCCESS event", function (done) {
+        const run = function (arg) {
+            return q.Promise(function (resolve, reject, notify) {
+                throw new Error("rejected")
+            });
+        };
+
+        const command = CommandFactory.getOrCreate("TestCommandFallbackSuccessEvent")
+            .run(run)
+            .fallbackTo(function (err) {
+                return q.resolve("fallback");
+            })
+            .build();
+
+        command.execute("success").then(function (result) {
+            expect(result).toBe("fallback");
+            const metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandFallbackSuccessEvent"});
+            expect(metrics.getCumulativeCount(RollingNumberEvent.FALLBACK_SUCCESS)).toBe(1);
+            done();
+        })
+    });
+
+    it("it should reject with error with fallback and record FALLBACK_FAILURE event when fallback fails", function (done) {
+        const run = function (arg) {
+            return q.Promise(function (resolve, reject, notify) {
+                throw new Error("rejected")
+            });
+        };
+
+        const command = CommandFactory.getOrCreate("TestCommandFallbackFailureEvent")
+            .run(run)
+            .fallbackTo(function (err) {
+                return q.reject(new Error("fallback"));
+            })
+            .build();
+
+        command.execute("success").catch(function (err) {
+            expect(err.message).toBe("fallback");
+            const metrics = CommandMetricsFactory.getOrCreate({commandKey: "TestCommandFallbackFailureEvent"});
+            expect(metrics.getCumulativeCount(RollingNumberEvent.FALLBACK_FAILURE)).toBe(1);
+            done();
+        })
+    });
+
     it("should call the fallback fn with the error & execute arguments if the run function fails", function (done) {
         const run = function (arg) {
             return q.Promise(function (resolve, reject, notify) {
