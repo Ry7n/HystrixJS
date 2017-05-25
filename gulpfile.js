@@ -4,6 +4,7 @@ var plumber = require('gulp-plumber');
 var jasmine = require('gulp-jasmine');
 var bump = require('gulp-bump');
 var git = require('gulp-git');
+var argv = require('yargs').argv;
 
 var path = require('path');
 
@@ -45,7 +46,7 @@ gulp.task('watch', function() {
 
 gulp.task('bump', function () {
     return gulp.src(['./package.json'])
-        .pipe(bump())
+        .pipe(bump({type: argv.type || 'patch'}))
         .pipe(gulp.dest('./'));
 });
 
