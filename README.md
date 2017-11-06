@@ -9,7 +9,7 @@ This library is inspired by the by the the Netflix [Hystrix](https://github.com/
 Install the hystrixjs via npm.
 
 ```
-npm --save hystrixjs
+npm install --save hystrixjs
 ```
 
 ### RxJs
