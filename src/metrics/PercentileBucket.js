@@ -13,4 +13,8 @@ export default class PercentileBucket {
     get values() {
         return this.bucketValues;
     }
+
+    reset() {
+        this.bucketValues = [];
+    }
 }
