@@ -35,7 +35,7 @@ describe("RollingNumber", function () {
         support.fastForwardActualTime(RollingNumberRewired, 1001);
 
         underTest.increment(RollingNumberEvent.SUCCESS);
-        expect(underTest.buckets.length).toBe(2);
+        expect(underTest.bucketIndex).toBe(1);
     });
 
     it("should reset the window if no activity was reported for the period longer than the window itself", function () {
@@ -44,12 +44,12 @@ describe("RollingNumber", function () {
         underTest.increment(RollingNumberEvent.SUCCESS);
         underTest.rollWindow(Date.now());
         underTest.increment(RollingNumberEvent.SUCCESS);
-        expect(underTest.buckets.length).toBe(2);
+        expect(underTest.bucketIndex).toBe(1);
 
         support.fastForwardActualTime(RollingNumberRewired, 1001);
 
         underTest.increment(RollingNumberEvent.SUCCESS);
-        expect(underTest.buckets.length).toBe(1);
+        expect(underTest.bucketIndex).toBe(0);
     });
 
 
@@ -59,7 +59,7 @@ describe("RollingNumber", function () {
         underTest.rollWindow(new Date().getTime());
         underTest.rollWindow(new Date().getTime());
         underTest.rollWindow(new Date().getTime());
-        expect(underTest.buckets.length).toBe(2);
+        expect(underTest.bucketIndex).toBe(1);
     });
 
     it("should return the sum of the values from all buckets", function () {
@@ -72,7 +72,7 @@ describe("RollingNumber", function () {
         underTest.increment(RollingNumberEvent.SUCCESS);
         underTest.increment(RollingNumberEvent.SUCCESS);
         underTest.increment(RollingNumberEvent.SUCCESS);
-        expect(underTest.buckets.length).toBe(2);
+        expect(underTest.bucketIndex).toBe(1);
         expect(underTest.getRollingSum(RollingNumberEvent.SUCCESS)).toBe(4);
     });
 
@@ -104,12 +104,12 @@ describe("RollingNumber", function () {
         underTest.rollWindow(Date.now());
         expect(underTest.getCumulativeSum(RollingNumberEvent.SUCCESS)).toBe(1);
         underTest.increment(RollingNumberEvent.SUCCESS);
-        expect(underTest.buckets.length).toBe(2);
+        expect(underTest.bucketIndex).toBe(1);
 
         support.fastForwardActualTime(RollingNumberRewired, 1001);
 
         underTest.increment(RollingNumberEvent.SUCCESS);
-        expect(underTest.buckets.length).toBe(1);
+        expect(underTest.bucketIndex).toBe(0);
         expect(underTest.getCumulativeSum(RollingNumberEvent.SUCCESS)).toBe(3);
     });
 
