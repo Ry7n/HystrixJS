@@ -15,7 +15,8 @@
     "test-missing-deps": "npm run babel && npm run clean-rxjs && npm run clean-rx && gulp test-missing-deps",
     "test-rx-latest": "npm run babel && npm run clean-rxjs && npm run install-rx && gulp test",
     "test-rxjs-latest": "npm run babel && npm run clean-rx && npm run install-rxjs && gulp test",
-    "test-rx-rxjs": "npm run babel && npm run install-rx && npm run install-rxjs && gulp test"
+    "test-rx-rxjs": "npm run babel && npm run install-rx && npm run install-rxjs && gulp test",
+    "watch": "gulp watch"
   },
   "repository": {
     "type": "git",
@@ -31,7 +32,7 @@
     "gulp": "^3.9.0",
     "gulp-babel": "^5.2.0",
     "gulp-bump": "^0.3.1",
-    "gulp-git": "^1.2.4",
+    "gulp-git": "^2.5.1",
     "gulp-jasmine": "^2.0.1",
     "gulp-plumber": "^1.0.1",
     "http": "0.0.0",
@@ -48,7 +49,8 @@
     "yargs": "^8.0.1"
   },
   "dependencies": {
-    "fast-stats": "0.0.3"
+    "fast-stats": "0.0.3",
+    "require-dir": "^0.3.2"
   },
   "peerDependencies": {
     "rxjs": "^5.0.0"
