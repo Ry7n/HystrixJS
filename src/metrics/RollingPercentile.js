@@ -48,7 +48,7 @@ export default class RollingPercentile {
             newBucketIndex = 0;
         }
 
-        this.percentileSnapshot = new PercentileSnapshot(this.buckets);
+        this.percentileSnapshot = getPercentileSnapshot(this.buckets);
 
         this.bucketIndex = newBucketIndex;
         let newBucket = this.buckets[newBucketIndex];
