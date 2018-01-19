@@ -5,6 +5,8 @@ var jasmine = require('gulp-jasmine');
 var bump = require('gulp-bump');
 var git = require('gulp-git');
 var argv = require('yargs').argv;
+var runSequence = require('run-sequence');
+var del = require('del');
 
 var path = require('path');
 
@@ -13,12 +15,17 @@ var paths = {
     es5: 'lib'
 };
 
-gulp.task('babel', function (cb) {
-    gulp.src(paths.es6)
+gulp.task('clean-lib', function () {
+    return del([
+        'lib/**/*'
+    ]);
+});
+
+gulp.task('babel', function () {
+    return gulp.src(paths.es6)
         .pipe(plumber())
         .pipe(babel())
         .pipe(gulp.dest(paths.es5));
-    cb();
 });
 
 gulp.task('test', function () {
@@ -40,7 +47,7 @@ gulp.task('test-missing-deps', function () {
 });
 
 gulp.task('watch', function() {
-    gulp.watch(paths.es6, ['babel']);
+    gulp.watch(paths.es6, ['clean-lib', 'babel']);
     gulp.watch(['test/**/*','lib/**/*'], ['test']);
 });
 
@@ -67,4 +74,6 @@ gulp.task('npm', ['tag'], function (done) {
         .on('close', done);
 });
 
-gulp.task('default', ['watch']);
+gulp.task('default', (callback) => {
+    return runSequence('clean-lib', 'babel', 'test', callback)
+});
