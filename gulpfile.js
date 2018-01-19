@@ -46,9 +46,12 @@ gulp.task('test-missing-deps', function () {
     );
 });
 
+gulp.task('clean-build-test', function (cb) {
+    return runSequence('clean-lib', 'babel', 'test', cb)
+});
+
 gulp.task('watch', function() {
-    gulp.watch(paths.es6, ['clean-lib', 'babel']);
-    gulp.watch(['test/**/*','lib/**/*'], ['test']);
+    gulp.watch(['test/**/*','src/**/*'], ['clean-build-test']);
 });
 
 gulp.task('bump', function () {
@@ -74,6 +77,4 @@ gulp.task('npm', ['tag'], function (done) {
         .on('close', done);
 });
 
-gulp.task('default', (callback) => {
-    return runSequence('clean-lib', 'babel', 'test', callback)
-});
+gulp.task('default', ['clean-build-test']);
