@@ -17,7 +17,7 @@ export default class RollingPercentile {
             buckets[i] = new Bucket(-Infinity);
         }
         this.bucketIndex = numberOfBuckets - 1;
-        this.percentileSnapshot = new PercentileSnapshot();
+        this.percentileSnapshot = getPercentileSnapshot();
     }
 
     addValue(value) {

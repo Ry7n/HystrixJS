@@ -11,7 +11,7 @@ class CumulativeSum {
 
     addBucket(lastBucket) {
         this.values.forEach((value, key, map) => {
-            map.set(key, value + lastBucket.get(type));
+            map.set(key, value + lastBucket.get(key));
         });
     }
 

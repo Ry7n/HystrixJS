@@ -3,10 +3,6 @@ import HystrixConfig from "../util/HystrixConfig";
 import Bucket from "./CounterBucket";
 import CumulativeSum from "./CumulativeSum";
 
-function resetBucket(bucket) {
-    bucket.reset();
-}
-
 class RollingNumber {
 
     constructor({
@@ -34,7 +30,7 @@ class RollingNumber {
         const currentBucket = this.buckets[this.bucketIndex];
         const windowStart = currentBucket.windowStart;
         if (currentTime > (windowStart + this.windowLength)) {
-            this.reset();
+            this.reset(currentTime);
             return this.getCurrentBucket();
         }
         if (currentTime < (windowStart + this.bucketSizeInMilliseconds)) {
@@ -72,10 +68,13 @@ class RollingNumber {
         return this.getCurrentBucket().get(type) + this.cumulativeSum.get(type);
     }
 
-    reset() {
+    reset(currentTime) {
         const currentBucket = this.buckets[this.bucketIndex];
         this.cumulativeSum.addBucket(currentBucket);
-        this.buckets.forEach(resetBucket);
+        this.buckets.forEach((bucket) => {
+            bucket.windowStart = currentTime;
+            bucket.reset();                    
+        });
         this.bucketIndex = 0;
     }
 }

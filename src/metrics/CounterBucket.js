@@ -3,10 +3,6 @@ import RollingNumberEvent from "./RollingNumberEvent";
 const initalvalues = Object.keys(RollingNumberEvent).
     map((key) => [RollingNumberEvent[key], 0]);
 
-function resetBucketItems(key, value, map) {
-    map.set(key, 0);
-}
-
 export default class CounterBucket {
 
     constructor (windowStart) {
@@ -32,6 +28,7 @@ export default class CounterBucket {
     }
 
     reset() {
-        this.bucketValues.forEach(resetBucketItems);
+        const bucketValues = this.bucketValues;
+        initalvalues.forEach(([key, value]) => bucketValues.set(key, value));
     }
 }
