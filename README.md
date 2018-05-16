@@ -219,3 +219,14 @@ hystrixConfig.init({
 });
 
 ```
+
+## Projects involving HystrixJS
+- HystrixJSDecorator
+
+A Decorator for NodeJS TypeScript to abstract the implementation of HystrixJS
+s
+Npm Package:
+https://www.npmjs.com/package/hystrixjs_decorator
+
+Github Repository:
+https://github.com/DavideCarvalho/hystrixjsDecorator
