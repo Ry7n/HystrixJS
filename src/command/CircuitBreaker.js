@@ -47,8 +47,9 @@ class CircuitBreaker {
     }
 
     allowSingleTest() {
-        if (this.circuitOpen && ActualTime.getCurrentTime() > this.circuitOpenedOrLastTestedTime + this.circuitBreakerSleepWindowInMilliseconds) {
-            this.circuitOpenedOrLastTestedTime = ActualTime.getCurrentTime();
+        const currentTime = ActualTime.getCurrentTime();
+        if (this.circuitOpen && currentTime > this.circuitOpenedOrLastTestedTime + this.circuitBreakerSleepWindowInMilliseconds) {
+            this.circuitOpenedOrLastTestedTime = currentTime;
             return true;
         } else {
             return false;
@@ -56,6 +57,7 @@ class CircuitBreaker {
     }
 
     isOpen() {
+        const currentTime = ActualTime.getCurrentTime();
         if (this.circuitOpen) {
             return true;
         }
@@ -67,7 +69,7 @@ class CircuitBreaker {
 
         if (errorPercentage > this.circuitBreakerErrorThresholdPercentage) {
             this.circuitOpen = true;
-            this.circuitOpenedOrLastTestedTime = ActualTime.getCurrentTime();
+            this.circuitOpenedOrLastTestedTime = currentTime;
             return true;
         } else {
             return false;
