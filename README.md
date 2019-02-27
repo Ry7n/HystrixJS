@@ -1,5 +1,3 @@
-# !!!DISCLAIMER!!!: this library is not being actively supported.
-
 # HystrixJS - resilience library for NodeJs applications
 
 [![npm version](https://badge.fury.io/js/hystrixjs.svg)](https://badge.fury.io/js/hystrixjs)      

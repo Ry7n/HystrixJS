@@ -1,7 +1,7 @@
 {
   "name": "hystrixjs",
   "version": "0.2.0",
-  "description": "resilience module for NodeJS applications",
+  "description": "Resilience module for NodeJS applications",
   "main": "index.js",
   "scripts": {
     "assert-no-rx": "! npm ls rx rxjs --only=prod | grep rx",
@@ -16,16 +16,24 @@
     "test-rx-latest": "npm run babel && npm run clean-rxjs && npm run install-rx && gulp test",
     "test-rxjs-latest": "npm run babel && npm run clean-rx && npm run install-rxjs && gulp test",
     "test-rx-rxjs": "npm run babel && npm run install-rx && npm run install-rxjs && gulp test",
-    "watch": "gulp watch"
+    "watch": "gulp watch",
+    "prepublish": "gulp babel"
   },
   "repository": {
     "type": "git",
-    "url": "git@bitbucket.org:igor_sechyn/hystrixjs.git"
+    "url": "git@github.com:Ry7n/HystrixJS.git"
   },
   "author": {
     "name": "Igor Sechyn (Atlassian)",
     "email": "isechyn@atlassian.com"
   },
+  "contributors": [
+    {
+      "name": "Ryan Cannon",
+      "email": "github@ryancannon.com",
+      "url": "https://ryancannon.com"
+    }
+  ],
   "license": "Apache-2.0",
   "devDependencies": {
     "del": "^3.0.0",
