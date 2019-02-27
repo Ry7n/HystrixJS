@@ -1,6 +1,6 @@
 # HystrixJS - resilience library for NodeJs applications
 
-[![npm version](https://badge.fury.io/js/hystrixjs.svg)](https://badge.fury.io/js/hystrixjs)      
+[![npm version](https://img.shields.io/npm/v/hystrixjs.svg?color=success)](https://www.npmjs.com/package/hystrixjs) [![Build Status](https://travis-ci.com/Ry7n/HystrixJS.svg?branch=master)](https://travis-ci.com/Ry7n/HystrixJS)
 
 This library is inspired by the by the the Netflix [Hystrix](https://github.com/Netflix/Hystrix/wiki/) module for Java applications, which "is a latency and fault tolerance library designed to isolate points of access to remote systems, services and 3rd party libraries, stop cascading failure and enable resilience in complex distributed systems where failure is inevitable".
 
