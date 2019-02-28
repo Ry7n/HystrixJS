@@ -63,16 +63,15 @@ export default class Command {
 
     execute() {
         //Resolve promise to guarantee execution/fallback is always deferred
-        return this.Promise.resolve()
-            .then(() => {
+        return new this.Promise((resolve) => {
                 if (this.requestVolumeRejectionThreshold != 0 && this.metrics.getCurrentExecutionCount() >= this.requestVolumeRejectionThreshold) {
-                    return this.handleFailure(new Error("CommandRejected"), Array.prototype.slice.call(arguments));
+                    return resolve(this.handleFailure(new Error("CommandRejected"), Array.prototype.slice.call(arguments)));
                 }
                 if (this.circuitBreaker.allowRequest()) {
-                    return this.runCommand.apply(this, arguments);
+                    return resolve(this.runCommand.apply(this, arguments));
                 } else {
                     this.metrics.markShortCircuited();
-                    return this.fallback(new Error("OpenCircuitError"), Array.prototype.slice.call(arguments));
+                    return resolve(this.fallback(new Error("OpenCircuitError"), Array.prototype.slice.call(arguments)));
                 }
             });
     }
