@@ -62,7 +62,7 @@ export default class Command {
     }
 
     execute() {
-        //Resolve promise to guarantee execution/fallback is always deferred
+        //Promise to guarantee execution/fallback is always deferred
         return new this.Promise((resolve) => {
                 if (this.requestVolumeRejectionThreshold != 0 && this.metrics.getCurrentExecutionCount() >= this.requestVolumeRejectionThreshold) {
                     return resolve(this.handleFailure(new Error("CommandRejected"), Array.prototype.slice.call(arguments)));
