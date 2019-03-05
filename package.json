@@ -27,6 +27,7 @@
     "name": "Igor Sechyn (Atlassian)",
     "email": "isechyn@atlassian.com"
   },
+  "license": "MIT",
   "contributors": [
     {
       "name": "Ryan Cannon",
@@ -34,7 +35,6 @@
       "url": "https://ryancannon.com"
     }
   ],
-  "license": "Apache-2.0",
   "devDependencies": {
     "del": "^3.0.0",
     "express": "^4.16.4",
