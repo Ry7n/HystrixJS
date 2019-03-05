@@ -1,7 +1,7 @@
 {
   "name": "hystrixjs",
   "version": "0.2.0",
-  "description": "resilience module for NodeJS applications",
+  "description": "Resilience module for NodeJS applications",
   "main": "index.js",
   "scripts": {
     "assert-no-rx": "! npm ls rx rxjs --only=prod | grep rx",
@@ -16,42 +16,49 @@
     "test-rx-latest": "npm run babel && npm run clean-rxjs && npm run install-rx && gulp test",
     "test-rxjs-latest": "npm run babel && npm run clean-rx && npm run install-rxjs && gulp test",
     "test-rx-rxjs": "npm run babel && npm run install-rx && npm run install-rxjs && gulp test",
-    "watch": "gulp watch"
+    "watch": "gulp watch",
+    "prepublish": "gulp babel"
   },
   "repository": {
     "type": "git",
-    "url": "git@bitbucket.org:igor_sechyn/hystrixjs.git"
+    "url": "git@github.com:Ry7n/HystrixJS.git"
   },
   "author": {
     "name": "Igor Sechyn (Atlassian)",
     "email": "isechyn@atlassian.com"
   },
   "license": "MIT",
+  "contributors": [
+    {
+      "name": "Ryan Cannon",
+      "email": "github@ryancannon.com",
+      "url": "https://ryancannon.com"
+    }
+  ],
   "devDependencies": {
     "del": "^3.0.0",
-    "express": "^4.13.3",
-    "gulp": "^3.9.0",
+    "express": "^4.16.4",
+    "gulp": "^4.0.0",
     "gulp-babel": "^5.2.0",
     "gulp-bump": "^0.3.1",
     "gulp-git": "^2.5.1",
     "gulp-jasmine": "^3.0.0",
     "gulp-plumber": "^1.0.1",
     "http": "0.0.0",
-    "jasmine": "^2.3.1",
-    "jasmine-core": "^2.3.4",
-    "lodash": "^4.17.4",
+    "jasmine": "^3.3.1",
+    "jasmine-core": "^3.3.0",
+    "lodash": "^4.17.11",
     "minimist": "^1.1.2",
     "q": "^1.0.1",
-    "request": "^2.60.0",
+    "request": "^2.88.0",
     "request-promise-json": "^1.0.4",
     "rewire": "^2.3.4",
-    "run-sequence": "^2.2.1",
     "rxjs": "^5.0.0",
     "sinon": "^2.1.0",
-    "yargs": "^8.0.1"
+    "yargs": "^13.2.1"
   },
   "dependencies": {
-    "fast-stats": "0.0.3",
+    "fast-stats": "0.0.5",
     "require-dir": "^0.3.2"
   },
   "peerDependencies": {

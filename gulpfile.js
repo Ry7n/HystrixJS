@@ -5,10 +5,7 @@ var jasmine = require('gulp-jasmine');
 var bump = require('gulp-bump');
 var git = require('gulp-git');
 var argv = require('yargs').argv;
-var runSequence = require('run-sequence');
 var del = require('del');
-
-var path = require('path');
 
 var paths = {
     es6: ['src/**/*.js'],
@@ -46,9 +43,7 @@ gulp.task('test-missing-deps', function () {
     );
 });
 
-gulp.task('clean-build-test', function (cb) {
-    return runSequence('clean-lib', 'babel', 'test', cb)
-});
+gulp.task('clean-build-test', gulp.series('clean-lib', 'babel', 'test'));
 
 gulp.task('watch', function() {
     gulp.watch(['test/**/*','src/**/*'], ['clean-build-test']);
@@ -60,7 +55,7 @@ gulp.task('bump', function () {
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('tag', ['bump'], function () {
+gulp.task('tag', gulp.series('bump', function () {
     var pkg = require('./package.json');
     var v = 'v' + pkg.version;
     var message = 'Release ' + v;
@@ -70,11 +65,11 @@ gulp.task('tag', ['bump'], function () {
         .pipe(git.tag(v, message))
         .pipe(git.push('origin', 'master', '--tags'))
         .pipe(gulp.dest('./'));
-});
+}));
 
-gulp.task('npm', ['tag'], function (done) {
+gulp.task('npm', gulp.series('tag', function (done) {
     require('child_process').spawn('npm', ['publish'], { stdio: 'inherit' })
         .on('close', done);
-});
+}));
 
-gulp.task('default', ['clean-build-test']);
+gulp.task('default', gulp.series('clean-build-test'));
