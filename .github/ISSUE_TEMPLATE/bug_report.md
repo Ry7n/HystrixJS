@@ -26,7 +26,7 @@ Please include with an `[x]` all versions of Node you've tested this on. Please 
 
  - [ ] Latest Boron (6.x)
  - [x] Latest Carbon (8.x)
- - [ ] Latest Dubnium (10x)
+ - [ ] Latest Dubnium (10.x)
  - [ ] Other: 
 
 **RxJS and Hystrix Dashboard versions used:**
