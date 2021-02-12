@@ -11,12 +11,13 @@ class RollingNumber {
             } = {}) {
         this.windowLength = timeInMillisecond;
         this.numberOfBuckets = numberOfBuckets;
-        this.buckets = [];
+        this.bucketSizeInMilliseconds = timeInMillisecond / numberOfBuckets;
+        const buckets = this.buckets = new Array(numberOfBuckets);
+        for (let i = 0; i < numberOfBuckets; i += 1) {
+            buckets[i] = new Bucket(-Infinity);
+        }
+        this.bucketIndex = numberOfBuckets - 1;
         this.cumulativeSum = new CumulativeSum();
-    }
-
-    get bucketSizeInMilliseconds() {
-        return this.windowLength / this.numberOfBuckets;
     }
 
     increment(type) {
@@ -24,20 +25,15 @@ class RollingNumber {
     }
 
     getCurrentBucket() {
-        let currentTime = ActualTime.getCurrentTime();
+        const currentTime = ActualTime.getCurrentTime();
 
-        if (this.buckets.length === 0) {
-            let newBucket = new Bucket(currentTime);
-            this.buckets.push(newBucket);
-            return newBucket;
-        }
-
-        let currentBucket = this.buckets[this.buckets.length-1];
-        if (currentTime > (currentBucket.windowStart + this.windowLength)) {
-            this.reset();
+        const currentBucket = this.buckets[this.bucketIndex];
+        const windowStart = currentBucket.windowStart;
+        if (currentTime > (windowStart + this.windowLength)) {
+            this.reset(currentTime);
             return this.getCurrentBucket();
         }
-        if (currentTime < (currentBucket.windowStart + this.bucketSizeInMilliseconds)) {
+        if (currentTime < (windowStart + this.bucketSizeInMilliseconds)) {
             return currentBucket;
         } else {
             this.rollWindow(currentTime);
@@ -46,36 +42,40 @@ class RollingNumber {
     }
 
     rollWindow(currentTime) {
-        let currentBucket = this.buckets[this.buckets.length-1];
+        let bucketIndex = this.bucketIndex;
+        const buckets = this.buckets;
+        let currentBucket = buckets[bucketIndex];
         if (currentBucket) {
             this.cumulativeSum.addBucket(currentBucket);
         }
 
-        let newBucket = new Bucket(currentTime);
-        if (this.buckets.length == this.numberOfBuckets) {
-            this.buckets.shift();
+        bucketIndex += 1;
+        if (bucketIndex === this.numberOfBuckets) {
+            bucketIndex = 0;
         }
-        this.buckets.push(newBucket);
+        this.bucketIndex = bucketIndex;
+
+        const newBucket = buckets[bucketIndex];
+        newBucket.windowStart = currentTime;
+        newBucket.reset();
     }
 
     getRollingSum(type) {
-        let sum = 0;
-        for (var bucket of this.buckets) {
-            sum += bucket.get(type);
-        }
-        return sum;
+        return this.buckets.reduce((reduction, bucket) => reduction + bucket.get(type), 0);
     }
 
     getCumulativeSum(type) {
         return this.getCurrentBucket().get(type) + this.cumulativeSum.get(type);
     }
 
-    reset() {
-        let currentBucket = this.buckets[this.buckets.length-1];
-        if (currentBucket) {
-            this.cumulativeSum.addBucket(currentBucket);
-        }
-        this.buckets = [];
+    reset(currentTime) {
+        const currentBucket = this.buckets[this.bucketIndex];
+        this.cumulativeSum.addBucket(currentBucket);
+        this.buckets.forEach((bucket) => {
+            bucket.windowStart = currentTime;
+            bucket.reset();                    
+        });
+        this.bucketIndex = 0;
     }
 }
 

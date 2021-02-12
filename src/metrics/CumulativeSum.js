@@ -1,25 +1,26 @@
 import RollingNumberEvent from "./RollingNumberEvent";
 
+const initalvalues = Object.keys(RollingNumberEvent).
+    map((key) => [RollingNumberEvent[key], 0]);
+
 class CumulativeSum {
 
     constructor() {
-        this.values = {};
+        this.values = new Map(initalvalues);
     }
 
     addBucket(lastBucket) {
-        for (let type in RollingNumberEvent) {
-            if (!this.values[type]) {
-                this.values[type] = 0;
-            }
-            this.values[type] = this.values[type] + lastBucket.get(type);
-        }
+        this.values.forEach((value, key, map) => {
+            map.set(key, value + lastBucket.get(key));
+        });
     }
 
     get(type) {
-        if (RollingNumberEvent[type] === undefined) {
+        const values = this.values;
+        if (!values.has(type)) {
             throw new Error("invalid event");
         }
-        return this.values[type] || 0;
+        return values.get(type);
     }
 }
 

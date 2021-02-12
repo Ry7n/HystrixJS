@@ -1,34 +1,34 @@
 import RollingNumberEvent from "./RollingNumberEvent";
 
+const initalvalues = Object.keys(RollingNumberEvent).
+    map((key) => [RollingNumberEvent[key], 0]);
+
 export default class CounterBucket {
 
     constructor (windowStart) {
         this.windowStart = windowStart;
-        this.bucketValues = {};
+        this.bucketValues = new Map(initalvalues);
     }
 
     get(type) {
-        if (RollingNumberEvent[type] === undefined) {
+        const bucketValues = this.bucketValues;
+        if (!bucketValues.has(type)) {
             throw new Error("invalid event");
         }
-
-        if (!this.bucketValues[type]) {
-            this.bucketValues[type] = 0;
-        }
-        return this.bucketValues[type];
+        return this.bucketValues.get(type);
     }
 
     increment(type) {
-        if (RollingNumberEvent[type] === undefined) {
+        const bucketValues = this.bucketValues;
+        if (!bucketValues.has(type)) {
             throw new Error("invalid event");
         }
+        const value = bucketValues.get(type);
+        bucketValues.set(type, value + 1);
+    }
 
-        let value = this.bucketValues[type];
-        if (value) {
-            value = value + 1;
-            this.bucketValues[type] = value;
-        } else {
-            this.bucketValues[type] = 1;
-        }
+    reset() {
+        const bucketValues = this.bucketValues;
+        initalvalues.forEach(([key, value]) => bucketValues.set(key, value));
     }
 }

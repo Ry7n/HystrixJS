@@ -30,7 +30,7 @@ describe("RollingPercentile", function () {
         underTest.addValue(1);
         support.fastForwardActualTime(RollingPercentileRewired, 1500);
         underTest.addValue(2);
-        expect(underTest.buckets.length).toBe(2);
+        expect(underTest.bucketIndex).toBe(1);
     });
 
     it("should calculate correct percentile after the first window roll", function () {
